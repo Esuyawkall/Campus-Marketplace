@@ -1,0 +1,66 @@
+@startuml
+left to right direction
+
+entity users {
+  +id : int <<PK>>
+  --
+  name : varchar
+  email : varchar
+  password_hash : varchar
+  role : varchar
+  status : varchar
+}
+
+entity products {
+  +id : int <<PK>>
+  --
+  name : varchar
+  description : text
+  price : decimal
+  status : varchar
+  seller_id : int <<FK>>
+  category : varchar
+  date_posted : timestamp
+}
+
+entity images {
+  +id : int <<PK>>
+  --
+  product_id : int <<FK>>
+  image_url : text
+}
+
+entity messages {
+  +id : int <<PK>>
+  --
+  sender_id : int <<FK>>
+  receiver_id : int <<FK>>
+  product_id : int <<FK>>
+  message_text : text
+  date_sent : timestamp
+}
+
+entity orders {
+  +id : int <<PK>>
+  --
+  product_id : int <<FK>>
+  buyer_id : int <<FK>>
+  seller_id : int <<FK>>
+  quantity : int
+  status : varchar
+  date_completed : timestamp
+}
+
+' Relationships
+users ||--o{ products : creates
+products ||--o{ images : has
+
+users ||--o{ messages : sends
+users ||--o{ messages : receives
+products ||--o{ messages : about
+
+users ||--o{ orders : buyer
+users ||--o{ orders : seller
+products ||--|| orders : sold
+
+@enduml
