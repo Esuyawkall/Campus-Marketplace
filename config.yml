@@ -5,4 +5,4 @@ db:
   db: 'IA637_sandbox'
 poll_user: 'esuyawkal'
 tables:
-  user: ''
+  user: 'k'
