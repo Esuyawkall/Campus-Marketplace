@@ -1,0 +1,8 @@
+db:
+  user: 'ia637'
+  pw: 'ia637.Clarkson'
+  host: 'mysql.clarksonmsda.org'
+  db: 'IA637_sandbox'
+poll_user: 'esuyawkal'
+tables:
+  user: 'users_esuyawkal'
