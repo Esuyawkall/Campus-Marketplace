@@ -1,0 +1,23 @@
+{% block content %}
+
+	<h1>Login</h1>
+	{% if msg %}
+      <div id="loginmsg">
+	 
+		{{ msg }}
+	 
+	  </div>
+    {% endif %}
+		
+	<form action="login" method="POST" id="login">
+		Username:/Email<br>
+		<input type="text" name="email" value="esuyawkal@clarkson.edu"/><br><br>
+		
+		Password:<br>
+		<input type="password" name="password" value="123" /><br><br>
+		
+		
+		<input type="submit" value="Login"/>
+
+	</form>
+{% endblock %}

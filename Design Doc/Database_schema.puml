@@ -4,7 +4,8 @@ left to right direction
 entity users {
   +id : int <<PK>>
   --
-  name : varchar
+  first_name : varchar
+  last_name : varchar
   email : varchar
   password_hash : varchar
   role : varchar

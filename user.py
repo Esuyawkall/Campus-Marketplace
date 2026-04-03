@@ -11,8 +11,8 @@ class user(baseObject):
         print(type(self).__name__)
         self.roles = [{'value': 'admin', 
                        'text': 'Admin'},
-                       {'value': 'customer',
-                       'text': 'Customer'}]
+                       {'value': 'participant',
+                       'text': 'Participant'}]
 
     def verifyNew(self):
         self.errors = []

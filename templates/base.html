@@ -1,0 +1,13 @@
+<html>
+    <head>
+      {% if title %}
+      <title>{{ title }} - Home</title>
+      {% else %}
+      <title>Welcome to my example</title>
+      {% endif %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">    </head>
+    <body>
+       
+        {% block content %}{% endblock %}
+    </body>
+</html>

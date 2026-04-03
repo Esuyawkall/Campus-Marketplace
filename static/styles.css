@@ -1,0 +1,12 @@
+body{
+    background-color: #c7b9b9;
+    justify-content: center;
+    align-items: center;
+ }
+form{
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    ;
+ }
