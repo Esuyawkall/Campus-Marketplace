@@ -13,20 +13,20 @@ The app allows users to create accounts, list items (like textbooks, electronics
     - Remove inappropriate or fraudulent content
 2. Participant
     i. Buyer
-            - Create and manage their account
-            - Browse and search for items
-            - View item details (price, description, seller info)
-            - Message sellers
-            - Save or favorite listings
-            - Report listings or users
-            - view past orders
-            <!-- - Mark items as purchased (optional, depending on design) -->
+    - Create and manage their account
+    - Browse and search for items
+    - View item details (price, description, seller info)
+    - Message sellers
+    - Save or favorite listings
+    - Report listings or users
+    - view past orders
+    <!-- - Mark items as purchased (optional, depending on design) -->
     ii. Seller
-            - Create and manage their account
-            - Create new listings (add title, description, price, category)
-            - Edit or delete their listings
-            - Mark items as sold
-            - View their active and past listings(up to a certain period)
-            - Message buyers
-            - Respond to inquiries about their items
-            - Report users if needed
+    - Create and manage their account
+    - Create new listings (add title, description, price, category)
+    - Edit or delete their listings
+    - Mark items as sold
+    - View their active and past listings(up to a certain period)
+    - Message buyers
+    - Respond to inquiries about their items
+    - Report users if needed
