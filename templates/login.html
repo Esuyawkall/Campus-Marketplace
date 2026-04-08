@@ -1,23 +1,26 @@
+{% extends "base.html" %}
+
 {% block content %}
+<div class="container">
+    <h1 class="title">Login</h1>
 
-	<h1>Login</h1>
-	{% if msg %}
-      <div id="loginmsg">
-	 
-		{{ msg }}
-	 
-	  </div>
+    {% if msg %}
+    <div class="message">
+        {{ msg }}
+    </div>
     {% endif %}
-		
-	<form action="login" method="POST" id="login">
-		Username:/Email<br>
-		<input type="text" name="email" value="esuyawkal@clarkson.edu"/><br><br>
-		
-		Password:<br>
-		<input type="password" name="password" value="123" /><br><br>
-		
-		
-		<input type="submit" value="Login"/>
 
-	</form>
+    <form action="{{ url_for('login') }}" method="POST" class="account_form">
+        
+        <label for="email">Username / Email</label>
+        <input type="text" id="email" name="email" value="esuyawkal@clarkson.edu" placeholder="Enter your email" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" value="123" placeholder="Enter your password" required>
+        <div><a href="{{ url_for('signup') }}" class="">Sign up</a></div>
+
+
+        <button type="submit">Login</button>
+    </form>
+</div>
 {% endblock %}

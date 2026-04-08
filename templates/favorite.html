@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="home-container">
+
+    <div class="home-header">
+        <h1>Favorites</h1>
+        <p>Mark your favorite products for easy viewing</p>
+    </div>
+{% if role == 'admin' %}
+    <div class="admin-panel">
+        <a href="/users/manage" class="btn">Manage Users</a>
+    </div>
+{% endif %}
+
+    <div class="listings">
+
+        {% for item in items %}
+            {% if item.is_favorite %}
+            <div class="card">
+                <h3>{{ item.product_name }}</h3>
+                <p class="price">${{ item.product_price }}</p>
+                <p class="desc">{{ item.description }}</p>
+                <p class="desc">{{ item.product_condition }}</p>
+
+                <div class="card-footer">
+                    <span>Seller: {{ item.first_name }}</span>
+                    <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="view-btn">View</a>
+                    {% if role == 'admin' %}
+                    <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Manage</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if items|length == 0 %}
+        <p class="no-items">No listings yet. Be the first to add one!</p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

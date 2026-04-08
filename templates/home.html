@@ -1,21 +1,63 @@
 {% extends "base.html" %}
+
 {% block content %}
-    <h1>Main menu</h1>
-      <div id="menumsg">
-        Hello, {{ user.name }}  ({{ user.uid }}, {{ user.role }})
-        {% if msg %}
-        <div id="sessionmsg">
-          {{msg}}
+
+<div class="home-container">
+
+    <div class="home-header">
+        <h1>Campus Marketplace</h1>
+        <p>Buy and sell items with students near you</p>
+    </div>
+{% if role == 'admin' %}
+    <div class="admin-panel">
+        <a href="/users/manage" class="btn">Manage Users</a>
+    </div>
+{% endif %}
+    <div  class="favorite">
+        <a href="/favorites" class="btn">Favorites</a>
+    </div>
+    <div class="home-actions">
+        <a href="{{ url_for('add_product') }}" class="btn">+ Add Listing</a>
+        <input type="text" placeholder="Search items..." class="search-bar">
+    </div>
+
+    <div class="listings">
+
+        {% for item in items %}
+        <div class="card">
+            <h3>{{ item.product_name }}</h3>
+            <p class="price">${{ item.product_price }}</p>
+            <p class="desc">{{ item.description }}</p>
+            <p class="desc">{{ item.product_condition }}</p>
+
+            <div class="">
+                {% if item.is_favorite %}
+                <form action="{{ url_for('toggle_favorite', product_id=item.product_id) }}" method="POST">
+                    <button type="submit" class="favorite-btn">❤️</button>
+                </form>
+                {% else %}
+                <form action="{{ url_for('toggle_favorite', product_id=item.product_id) }}" method="POST">
+                    <button type="submit" class="favorite-btn">🤍</button>
+                </form>
+                {% endif %}
+            </div>
+
+            <div class="card-footer">
+                <span>Seller: {{ item.first_name }}</span>
+                <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="view-btn">View</a>
+                {% if role == 'admin' %}
+                <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Manage</a>
+                {% endif %}
+            </div>
         </div>
+        {% endfor %}
+
+        {% if items|length == 0 %}
+        <p class="no-items">No listings yet. Be the first to add one!</p>
         {% endif %}
-      </div>
-    <br><br>
-    {% if user.role == 'admin'  %}
-    <a href="/users/manage">Manage Users</a><br>
-    <a href="/vehicles/manage">Manage Vehicles</a><br>
-    {% endif %}
-    
-    <a href="/logout">Logout</a><br>
-    
-    
+
+    </div>
+
+</div>
+
 {% endblock %}

@@ -19,7 +19,7 @@ up = user()
 # print(up.hashPassword('122abc'))
 # print(up.roleList())
 
-d = {'first_name':'esuyawkal','last_name':'bereda','email':'esuyawkal@clarkson.edu','password':'123','password2':'123', 'role': 'admin', 'user_status': 'active'}
+d = {'first_name':'esuyawkal','last_name':'bereda','email':'esuyawkal@admin','password':'123','password2':'123', 'role': 'admin', 'user_status': 'active'}
 up.set(d)
 if up.verifyNew():
     up.insert()
