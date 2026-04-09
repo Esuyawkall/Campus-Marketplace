@@ -6,6 +6,7 @@ from flask import request,session, redirect, url_for, send_from_directory,make_r
 from flask_session import Session
 from datetime import timedelta
 from favorite import favorite
+from order import order
 from product import product
 from user import user
 
@@ -41,10 +42,6 @@ def login():
 
         if u.tryLogin(un, pw):
             print(f'Login successful: {u.data[0]}')
-
-            # session['user'] = u.data[0]['email']
-            # session['active'] = time.time()
-            # session['role'] = u.data[0]['role']
 
             session['user'] = {
                 'id': u.data[0]['user_id'],
@@ -217,7 +214,7 @@ def add_product():
 
     return render_template('products/add.html', role=session.get('user')['role'])
 
-@app.route('/favorites')
+@app.route('/favorites', methods=['GET', 'POST'])
 def view_favorites():
     if checksession() == False:
         return redirect('/login')
@@ -227,7 +224,7 @@ def view_favorites():
 
     return render_template('favorite.html', items=favorites, role=session.get('user')['role'])
 
-@app.route('/favorites/<int:product_id>', methods=['POST'])
+@app.route('/favorites/<int:product_id>', methods=['GET', 'POST'])
 def toggle_favorite(product_id):
     if checksession() == False:
         return redirect('/login')
@@ -237,5 +234,22 @@ def toggle_favorite(product_id):
 
     return redirect('/home')
 
+@app.route('/orders', methods=['GET', 'POST'])
+def view_orders():
+    if checksession() == False:
+        return redirect('/login')
+
+    o = order()
+    orders = o.get_orders(session.get('user')['id'])
+    return render_template('order.html', orders=orders, role=session.get('user')['role'])
+@app.route('/orders/<int:product_id>', methods=['GET', 'POST'])
+def place_order(product_id):
+    if checksession() == False:
+        return redirect('/login')
+
+    o = order()
+    o.place_order(session.get('user')['id'], product_id, quantity=1)
+
+    return redirect('/orders')
 if __name__ == '__main__':
    app.run(host='0.0.0.0',debug=True)

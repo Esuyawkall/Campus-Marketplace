@@ -173,6 +173,11 @@ body {
     right: 200px;
     position: absolute;
 }
+.orders {
+    top: 20px;
+    right: 380px;
+    position: absolute;
+}
 #description {
     margin-top: 20px;
     padding: 15px;

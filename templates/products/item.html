@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
+    <div class="home-container">
 
+    <div class="home-header">
+        <h2>View product</h2>
+    </div>
+    <div class="listings">
         <div class="card">
             <h3>{{ product.product_name }}</h3>
             <p class="price">${{ product.product_price }}</p>
@@ -8,9 +13,13 @@
             <p class="desc">{{ product.product_condition }}</p>
             <div class="card-footer">
             <span>Seller: {{ product.first_name }}</span>
+            <a href="{{ url_for('place_order', product_id=product.product_id) }}" class="view-btn">Order</a>
+
             {% if role == 'admin' %}
             <a href="{{ url_for('manage_product', product_id=product.product_id) }}" class="view-btn">Manage</a>
             {% endif %}
             </div>
         </div>
+    </div>
+    </div>
 {% endblock %}

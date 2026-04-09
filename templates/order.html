@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="home-container">
+
+    <div class="home-header">
+        <h1>Orders</h1>
+        <p>View and manage your orders here</p>
+    </div>
+{% if role == 'admin' %}
+    <div class="admin-panel">
+        <a href="/users/manage" class="btn">Manage Users</a>
+    </div>
+{% endif %}
+    <div class="container">
+        {% for order in orders %}
+        <div class="card">
+            <h3>{{ order.product_name }}</h3>
+            <p class="price">${{ order.product_price }}</p>
+            <p class="desc">{{ order.description }}</p>
+            <p class="desc">{{ order.product_condition }}</p>
+            <div class="order-status">
+                <span>Status: {{ order.status }}</span>
+                {% if order.status == 'completed' %}
+                <span>Ordered on {{ order.order_date }}</span>
+                {% endif %}
+            </div>
+
+            <div class="card-footer">
+                <span>Seller: {{ order.first_name }}</span>
+                <a href="{{ url_for('view_product', product_id=order.product_id) }}" class="view-btn">View</a>
+                {% if role == 'admin' %}
+                <a href="{{ url_for('manage_product', product_id=order.product_id) }}" class="view-btn">Manage</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% if orders|length == 0 %}
+        <p class="no-items">You have no orders yet. Start shopping to place your first order!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
