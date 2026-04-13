@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="home-container">
+
+    <div class="home-header">
+        <h1>Messages</h1>
+    </div>
+{% if role == 'admin' %}
+    <div class="admin-panel">
+        <a href="/users/manage" class="btn">Manage Users</a>
+    </div>
+{% endif %}
+
+    <div class="listings">
+
+        {% for message in messages %}
+        <div class="card">
+            <h3>From: {{ message.sender_name }} {{ message.last_name }}</h3>
+            <p class="price">{{ message.email }}</p>
+            <p class="desc">{{ message.message_text }}</p>
+
+            <div class="card-footer">
+                <a href="{{ url_for('chat', user_id=message.user_id) }}" class="view-btn">Open Chat</a>            </div>
+        </div>
+        {% endfor %}
+
+        {% if messages|length == 0 %}
+        <p class="no-items">
+            No messages yet. Check back later!
+        </p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

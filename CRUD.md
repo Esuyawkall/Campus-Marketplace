@@ -114,7 +114,7 @@
 - **Delete**
   - Remove orders
 
----
+<!-- ---
 
 ## 🚩 Reports / Flags (future moderation system)
 
@@ -128,4 +128,4 @@
 - **Update**
   - Mark as resolved
 - **Delete**
-  - Remove reports
+  - Remove reports -->

@@ -1,17 +1,20 @@
-from itertools import product
-
 from flask import Flask
 from flask import render_template
 from flask import request,session, redirect, url_for, send_from_directory,make_response 
 from flask_session import Session
 from datetime import timedelta
 from favorite import favorite
+from image import image
 from order import order
 from product import product
 from user import user
+from message import message
+from flask import jsonify
+
+
+
 
 import time
-import datetime
 
 app = Flask(__name__,static_url_path='')
 
@@ -79,7 +82,16 @@ def home_page():
     print(session['user']['active'])
 
     items = p.getAll(session.get('user')['id'])
-    return render_template('home.html', title='Home', msg=session.get('msg'), items=items, user=session.get('user')['email'], role=session.get('user')['role'])
+    myItems = p.getbySellerId(session.get('user')['id'])
+
+    i = image()
+    for item in items:
+        images = i.get_images_by_product_id(item['product_id'])
+        item['img_url'] = images[0]['url'] if images else 'images/desk+chair.jpg'
+    for item in myItems:
+        images = i.get_images_by_product_id(item['product_id'])
+        item['img_url'] = images[0]['url'] if images else 'images/desk+chair.jpg'
+    return render_template('home.html', title='Home', msg=session.get('msg'), items=items,myItems=myItems, user=session.get('user')['email'], role=session.get('user')['role'])
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -128,60 +140,16 @@ def manage_user():
     
     # pkval = request.args.get('pkval')
     # action = request.args.get('action')
-    o = user()
-    o.getAll()
+    u = user()
+    u.getAll()
 
-    # if action == 'insert':
-    #     d = {}
-    #     d['name'] = request.form.get('name')
-    #     d['email'] = request.form.get('email')
-    #     d['role'] = request.form.get('role')
-    #     d['password'] = request.form.get('password')
-    #     d['password2'] = request.form.get('password2')
-
-    #     o.set(d)
-    #     if o.verify_new():
-    #         o.insert()
-    #         return render_template('ok_dialog.html', msg=f"user {o.data[0][o.pk]} is added")
-    #     else:
-    #         return render_template('users/add.html', obj=o)
-    # if action == 'update':
-    #     o.getById(pkval)
-    #     o.data[0]['name'] = request.form.get('name')
-    #     o.data[0]['email'] = request.form.get('email')
-    #     o.data[0]['role'] = request.form.get('role')
-    #     if request.form.get('password') is not None:
-    #         o.data[0]['password'] = request.form.get('password')
-    #         o.data[0]['password2'] = request.form.get('password2')                    
-    #     if o.verify_update():
-    #         o.update()
-    #         return render_template('ok_dialog.html', msg=f"user {o.data[0][o.pk]} is updated")
-    #     else:
-    #         return render_template('users/manage.html', obj=o)
-    # if action == 'delete':
-    #     o.deleteById(pkval)
-    #     return render_template('ok_dialog.html', msg=f"user is deleted")
-    # if pkval is None:
-    #     o.getAll()
-    #     return render_template('users/list.html', obj=o)
-    # if pkval == 'new':
-    #     o.createBlank()
-    #     return render_template('users/add.html', obj=o)
-    # o.getById(pkval)
-    return render_template('users/manage.html', obj=o)
-
-@app.route('/products/manage/<int:product_id>',methods=['GET', 'POST'])
-def manage_product(product_id):
-    if checksession() == False:
-        return redirect('/login')
-    
-    p = product()
-    product_data = p.getbyProductId(product_id)
-    # action = request.args.get('action')
-    return render_template('products/manage.html', product=product_data, role=session.get('user')['role'])
+      
+    return render_template('users/manage.html', items=u.data, role=session.get('user')['role'])
 
 @app.route('/product/<int:product_id>')
 def view_product(product_id):
+    if checksession() == False:
+        return redirect('/login')
     p = product()
     product_data = p.getbyProductId(product_id)
 
@@ -205,7 +173,8 @@ def add_product():
             'product_price': request.form.get('product_price'),
             'seller_id': session.get('user')['id'],
             'product_condition': request.form.get('condition'),
-            'product_status': 'available'
+            'product_status': 'available',
+            'image_url': request.form.get('image')
         }
 
         p.CreateListing(data)
@@ -213,6 +182,35 @@ def add_product():
         return redirect('/home')
 
     return render_template('products/add.html', role=session.get('user')['role'])
+@app.route('/products/manage/<int:product_id>', methods=['GET', 'POST'])
+def manage_product(product_id):
+    if not checksession():
+        return redirect('/login')
+
+    p = product()
+
+    if request.method == 'GET':
+        product_data = p.getbyProductId(product_id)
+        return render_template(
+            'products/manage.html',
+            product=product_data,
+            role=session['user']['role']
+        )
+
+    # 🔵 UPDATE DATA (POST)
+    if request.method == 'POST':
+        data = {
+            'product_name': request.form.get('product_name'),
+            'description': request.form.get('description'),
+            'product_price': request.form.get('product_price'),
+            'product_condition': request.form.get('condition'),
+            'product_status': 'available',
+            'image_url': request.form.get('image')
+        }
+
+        p.updateProduct(product_id, data)
+
+        return redirect('/home')
 
 @app.route('/favorites', methods=['GET', 'POST'])
 def view_favorites():
@@ -221,6 +219,11 @@ def view_favorites():
 
     f = favorite()
     favorites = f.get_favorites(session.get('user')['id'])
+    i = image()
+
+    for item in favorites:
+        images = i.get_images_by_product_id(item['product_id'])
+        item['image_url'] = images[0]['url'] if images is not None else 'images/desk+chair.jpg'
 
     return render_template('favorite.html', items=favorites, role=session.get('user')['role'])
 
@@ -230,14 +233,16 @@ def toggle_favorite(product_id):
         return redirect('/login')
 
     f = favorite()
-    f.toggle_favorite(session.get('user')['id'], product_id)
+    liked = f.toggle_favorite(session.get('user')['id'], product_id)
 
-    return redirect('/home')
+    return  jsonify({"liked": liked})
 
 @app.route('/orders', methods=['GET', 'POST'])
 def view_orders():
     if checksession() == False:
         return redirect('/login')
+    print('home loaded')
+    print(session['user']['active'])
 
     o = order()
     orders = o.get_orders(session.get('user')['id'])
@@ -251,5 +256,52 @@ def place_order(product_id):
     o.place_order(session.get('user')['id'], product_id, quantity=1)
 
     return redirect('/orders')
+@app.route('/messages', methods=['GET', 'POST'])
+def messages():
+    if not checksession():
+        return redirect('/login')
+
+    m = message()
+    inbox = m.getMessagesByUserId(session['user']['id'])
+
+    return render_template(
+        'message.html',
+        messages=inbox,
+        role=session['user']['role']
+    )
+@app.route('/chat/<int:user_id>')
+def chat(user_id):
+    if not checksession():
+        return redirect('/login')
+
+    m = message()
+    chat_messages = m.getMessagesBetweenUsers(
+        session['user']['id'],
+        user_id
+    )
+
+    return render_template(
+        'messages/chat.html',
+        messages=chat_messages,
+        receiver_id=user_id,
+        current_user=session['user']['id'],
+        role=session['user']['role']
+    )
+@app.route('/chat/send/<int:receiver_id>', methods=['POST'])
+def send_message(receiver_id):
+    if not checksession():
+        return {"error": "unauthorized"}, 401
+
+    data = request.get_json()
+
+    m = message()
+    m.sendMessage(
+        session['user']['id'],
+        receiver_id,
+        data['message'],
+        product_id=data.get('product_id')
+    )
+
+    return {"status": "ok"}
 if __name__ == '__main__':
    app.run(host='0.0.0.0',debug=True)

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="home-container">
+
+    <div class="home-header">
+        <h1>Messages</h1>
+    </div>
+{% if role == 'admin' %}
+    <div class="admin-panel">
+        <a href="/users/manage" class="btn">Manage Users</a>
+    </div>
+{% endif %}
+
+<div class="chat-container">
+
+    <div id="chat-box" class="chat-box">
+        {% for msg in messages %}
+            <div class="message 
+                {% if msg.sender_id == current_user %}sent{% else %}received{% endif %}">
+                
+                {{ msg.message_text }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+</div>
+
+<script>
+async function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const text = input.value;
+
+    if (!text.trim()) return;
+
+   await fetch(`/chat/send/{{ receiver_id }}`, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        message: text
+    })
+});
+
+    input.value = "";
+    location.reload();
+}
+</script>
+
+
+{% endblock %}

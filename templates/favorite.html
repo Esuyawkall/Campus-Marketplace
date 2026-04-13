@@ -19,6 +19,7 @@
         {% for item in items %}
             {% if item.is_favorite %}
             <div class="card">
+            <div class="product-image"><img src="{{item.image_url}}" alt="product_image"></div>
                 <h3>{{ item.product_name }}</h3>
                 <p class="price">${{ item.product_price }}</p>
                 <p class="desc">{{ item.description }}</p>

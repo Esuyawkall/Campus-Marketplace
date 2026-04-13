@@ -1,25 +1,28 @@
-{% extends "base.html" %}
-{% block content %}
-    <div class="home-container">
+{% extends 'base.html' %}
 
-    <div class="home-header">
-        <h2>View product</h2>
+{% block content %}
+<div class="product-detail">
+    
+    <div class="product-image-large">
+        <img src="{{ product.image_url }}" alt="product_image">
     </div>
-    <div class="listings">
-        <div class="card">
-            <h3>{{ product.product_name }}</h3>
-            <p class="price">${{ product.product_price }}</p>
-            <p class="desc">{{ product.description }}</p>
-            <p class="desc">{{ product.product_condition }}</p>
-            <div class="card-footer">
+
+    <div class="product-info">
+        <h2>{{ product.product_name }}</h2>
+        <p class="price">${{ product.product_price }}</p>
+        <p class="desc-long">{{ product.description }}</p>
+        <p class="desc"><strong>Condition:</strong> {{ product.product_condition }}</p>
+
+        <div class="card-footer">
             <span>Seller: {{ product.first_name }}</span>
+
             <a href="{{ url_for('place_order', product_id=product.product_id) }}" class="view-btn">Order</a>
 
             {% if role == 'admin' %}
             <a href="{{ url_for('manage_product', product_id=product.product_id) }}" class="view-btn">Manage</a>
             {% endif %}
-            </div>
         </div>
     </div>
-    </div>
+
+</div>
 {% endblock %}

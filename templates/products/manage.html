@@ -28,6 +28,8 @@
             <option value="Used" {% if product.product_condition == 'Used' %}selected{% endif %}>Used</option>
             <option value="For Parts" {% if product.product_condition == 'For Parts' %}selected{% endif %}>For Parts</option>
         </select>
+        <label for="image">Image URL</label>
+        <input type="text" id="image" name="image" value="{{ product.image_url }}" placeholder="Enter image URL">
         <br>
 
         <button type="submit">Update Product</button>

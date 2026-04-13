@@ -3,21 +3,27 @@
 {% block content %}
 
 <div class="home-container">
-
+    <div>
     <div class="home-header">
         <h1>Campus Marketplace</h1>
-        <p>Buy and sell items with students near you</p>
+        <p>Buy and sell items with students at your campus</p>
     </div>
-{% if role == 'admin' %}
+
     <div class="admin-panel">
-        <a href="/users/manage" class="btn">Manage Users</a>
-    </div>
+{% if role == 'admin' %} 
+        <div  class="menu-bar">
+            <a href="/users/manage" class="btn">Manage Users</a>
+        </div>
 {% endif %}
-    <div  class="orders">
-        <a href="/orders" class="btn">Orders</a>
-    </div>
-    <div  class="favorite">
-        <a href="/favorites" class="btn">Favorites</a>
+        <div  class="menu-bar">
+            <a href="/orders" class="btn">Orders</a>
+        </div>
+        <div  class="menu-bar">
+            <a href="/favorites" class="btn">Favorites</a>
+        </div>
+        <div  class="menu-bar">
+            <a href="/messages" class="btn">Messages</a>
+        </div>
     </div>
     <div class="home-actions">
         <a href="{{ url_for('add_product') }}" class="btn">+ Add Listing</a>
@@ -27,27 +33,64 @@
     <div class="listings">
 
         {% for item in items %}
+        {% if item.user_id != session.get('user')['id'] %}
         <div class="card">
+            <div class="product-image"><img src="{{item.img_url}}" alt="product_image"></div>
             <h3>{{ item.product_name }}</h3>
             <p class="price">${{ item.product_price }}</p>
             <p class="desc">{{ item.description }}</p>
             <p class="desc">{{ item.product_condition }}</p>
 
-            <div class="">
-                {% if item.is_favorite %}
-                <form action="{{ url_for('toggle_favorite', product_id=item.product_id) }}" method="POST">
-                    <button type="submit" class="favorite-btn">❤️</button>
-                </form>
-                {% else %}
-                <form action="{{ url_for('toggle_favorite', product_id=item.product_id) }}" method="POST">
-                    <button type="submit" class="favorite-btn">🤍</button>
-                </form>
+            <div class="favorite-container">
+                <button 
+                    onclick="likePost(this)"
+                    data-id="{{ item.product_id }}"
+                    id="like-btn-{{ item.product_id }}"
+                    class="favorite-btn">
+
+                    {{ "❤️" if item.is_favorite else "🤍" }}
+                </button>
+            </div>
+            <div class="card-footer">
+                <span>Seller: {{ item.first_name }}</span>
+                <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="view-btn">Buy</a>
+                {% if role == 'admin' %}
+                <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Manage</a>
                 {% endif %}
+                <a href="{{ url_for('chat', user_id=item.user_id) }}" class="view-btn">Chat</a>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        </div>
+        <div class="home-container">
+    <div class="home-header">
+        <h3>My Listings</h3>
+    </div>
+        <div class="listings">
+
+        {% for item in myItems %}
+            <div class="card">
+            <div class="product-image"><img src="{{item.img_url}}" alt="product_image"></div>
+            <h3>{{ item.product_name }}</h3>
+            <p class="price">${{ item.product_price }}</p>
+            <p class="desc">{{ item.description }}</p>
+            <p class="desc">{{ item.product_condition }}</p>
+
+            <div class="favorite-container">
+                <button 
+                    onclick="likePost(this)"
+                    data-id="{{ item.product_id }}"
+                    id="like-btn-{{ item.product_id }}"
+                    class="favorite-btn">
+
+                    {{ "❤️" if item.is_favorite else "🤍" }}
+                </button>
             </div>
 
             <div class="card-footer">
                 <span>Seller: {{ item.first_name }}</span>
-                <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="view-btn">View</a>
+                <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Edit</a>
                 {% if role == 'admin' %}
                 <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Manage</a>
                 {% endif %}
@@ -60,7 +103,23 @@
         {% endif %}
 
     </div>
+    </div>
+    
 
 </div>
+</div>
 
+<script>
+async function likePost(btn) {
+    const productId = btn.dataset.id;
+
+    const res = await fetch(`/favorites/${productId}`, {
+        method: "POST"
+    });
+
+    const data = await res.json();
+
+    btn.textContent = data.liked ? "❤️" : "🤍";
+}
+</script>
 {% endblock %}

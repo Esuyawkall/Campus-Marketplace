@@ -1,52 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="home-container">
 
-            {% for item in obj.data %}
-            <div class="card">
-                <p>{{ item.first_name }} {{ item.last_name }}</p>
-                <p>Email: {{ item.email }}</p>
-                <p>Role: {{ item.role }}</p>
-            </div>
-            {% endfor %}
-            <!-- <div class="error_text">
-                {% if obj.errors | length > 0 %}
-                    {% for error in obj.errors  %}
-                        <div>{{ error }}</div>
-                    {% endfor %}
+    <div class="home-header">
+        <h1>Manage Users</h1>
+    </div>
+    <div class="listings">
+
+        {% for item in items %}
+        {% if item.user_id != session.get('user')['id'] %}
+        <div class="card">
+            <h3>{{ item.first_name }} {{ item.last_name }}</h3>
+            <p class="price">{{ item.email }}</p>
+            <p class="desc">{{ item.role }}</p>
+
+            <div class="card-footer">
+                {% if role == 'admin' %}
+                <a href="{{ url_for('manage_user', user_id=item.user_id) }}" class="view-btn">Manage</a>
+                {% if item.role == 'participant' %}
+                <a href="{{ url_for('manage_user', user_id=item.user_id) }}" class="delete-btn">Ban</a>
+                {%endif %}
                 {% endif %}
             </div>
-            <div>
-                <form action="manage?action=update&pkval={{ obj.data[0][obj.pk] }}" method="POST">
-                    Name:<br>
-                    <input type="text" name="name" value="{{ obj.data[0].name }}" />
-                    <br>
-                    Email:<br>
-                    <input type="text" name="email" value="{{ obj.data[0].email }}" />
-                    <br>
-                    Password:<br>
-                    <input type="password" name="password" value="" />
-                    <br>
-                    Retype Password:<br>
-                    <input type="password" name="password2" value="" />
-                    <br>
-                    Role:<br>
-                    <select name="role">
-                        {% for role in obj.roles %}
-                            {% if  obj.data[0].role == role.value %}
-                                <option selected="true" value="{{ role.value }}">{{ role.text }}</option>
-                            {% else %}
-                                <option value="{{ role.value }}">{{ role.text }}</option>
-                            {% endif %}
-                        {% endfor %}  
-                    </select>
-                    <br>
-                    <br>
-                    <input type="submit" value="Submit" />
-                </form>
-                <div>
-                    <br><br>
-                    <a href="/users/manage?pkval={{ obj.data[0][obj.pk] }}&action=delete">Delete this User</a>
-                </div>
-                
-            </div> -->
+        </div>
+        {% endif %}
+        {% endfor %}
+        </div>
+</div>
 {% endblock %}

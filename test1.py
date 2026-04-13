@@ -19,12 +19,12 @@ up = user()
 # print(up.hashPassword('122abc'))
 # print(up.roleList())
 
-d = {'first_name':'esuyawkal','last_name':'bereda','email':'esuyawkal@admin','password':'123','password2':'123', 'role': 'admin', 'user_status': 'active'}
-up.set(d)
-if up.verifyNew():
-    up.insert()
-else:
-    print(up.errors)
+# d = {'first_name':'esuyawkal','last_name':'bereda','email':'esuyawkal@admin','password':'123','password2':'123', 'role': 'admin', 'user_status': 'active'}
+# up.set(d)
+# if up.verifyNew():
+#     up.insert()
+# else:
+#     print(up.errors)
 
 
 # if up.tryLogin('esuyawkal3@clarkson.edu','1234'):
@@ -37,3 +37,7 @@ else:
 
 #u = user()
 #u.deleteById(14)  
+
+# u = user()
+# u.getAll()
+# print(u.data)
