@@ -45,5 +45,5 @@ class image(baseObject):
                 if url and isinstance(url, str) and url.strip():
                     return url
         else:
-            return 'images/desk-chair.jpg'
-        return 'images/desk-chair.jpg'
+            return '/static/images/desk+chair.jpg'
+        return '/static/images/desk+chair.jpg'

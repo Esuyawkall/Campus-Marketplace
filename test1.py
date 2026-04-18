@@ -2,6 +2,7 @@ import yaml
 from pathlib import Path
 import pymysql
 import datetime
+from order import order
 from user import user
 
 up = user()
@@ -41,3 +42,5 @@ up = user()
 # u = user()
 # u.getAll()
 # print(u.data)
+o = order()
+print(o.get_order_summary_by_user_id(2))

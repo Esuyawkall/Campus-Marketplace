@@ -22,7 +22,11 @@
         <div class="orders-list">
             {% for order in orders %}
             <div class="card">
+<<<<<<< HEAD
             <div class="product-image"><img src="{{ url_for('static', filename=order.img_url) }}" alt="Product Image"></div>
+=======
+            <div class="product-image"><img src="{{order.image_url}}" alt="product_image"></div>
+>>>>>>> d889270 (apply gitignore properly)
                 <h3>{{ order.product_name }}</h3>
                 <p class="price">${{ order.product_price }}</p>
                 <p class="desc">{{ order.description}}</p>

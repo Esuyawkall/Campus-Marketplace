@@ -26,7 +26,11 @@
         <section class="card">
             <h3>Listing Details</h3>
 
+<<<<<<< HEAD
             <form action="{{ url_for('manage_product', product_id=product.product_id) }}" method="POST" enctype="multipart/form-data">
+=======
+            <form action="{{ url_for('manage_product', product_id=product.product_id) }}" method="POST">
+>>>>>>> d889270 (apply gitignore properly)
                 <div class="grid-2">
 
                     <div class="field">
@@ -64,9 +68,15 @@
                     </div>
 
                     <div class="field full">
+<<<<<<< HEAD
                         <label for="image">Image</label>
                          <input type="file" name="image" accept="image/*" value="{{ product.image_url or '' }}">
 
+=======
+                        <label for="image">Image URL</label>
+                        <input type="text" id="image" name="image" value="{{ product.image_url or '' }}">
+                    </div>
+>>>>>>> d889270 (apply gitignore properly)
 
                 </div>
 
@@ -102,7 +112,11 @@
             </div>
 
             {% if product.image_url %}
+<<<<<<< HEAD
             <img src="{{ url_for('static', filename=product.image_url) }}" class="admin-preview-image">
+=======
+            <img src="{{ product.image_url }}" class="admin-preview-image">
+>>>>>>> d889270 (apply gitignore properly)
             {% endif %}
         </aside>
     </div>

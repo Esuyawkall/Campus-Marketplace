@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="profile-page">
+    <div class="profile-shell">
+        <aside class="profile-panel profile-identity">
+            <div class="profile-avatar">
+                {{ (user.first_name[0] if user.first_name else 'U')|upper }}
+            </div>
+
+            <h2 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h2>
+            <p class="profile-email">{{ user.email }}</p>
+
+            <div class="profile-badge">
+                <span class="status-dot"></span>
+                {{ user.role|capitalize }} Session Active
+            </div>
+
+            <div class="side-actions">
+                <a href="{{ url_for('home_page') }}" class="link-btn primary">Go to Home</a>
+                <a href="{{ url_for('messages') }}" class="link-btn">Open Messages</a>
+                <a href="{{ url_for('logout') }}" class="link-btn danger">Logout</a>
+            </div>
+        </aside>
+
+        <section class="profile-panel workspace">
+            <div class="workspace-head">
+                <h1>Profile Workspace</h1>
+                <p>Use role-based shortcuts to navigate your account, marketplace activity, and communication tools.</p>
+            </div>
+
+            <div class="flow-grid">
+                <article class="flow-card">
+                    <span class="flow-tag">Marketplace</span>
+                    <h3>Sell and Manage Listings</h3>
+                    <p>Create listings, then return home to edit and track your posted items.</p>
+                    <div class="card-actions">
+                        <a href="{{ url_for('add_product') }}" class="mini-link">Add Listing</a>
+                        <a href="{{ url_for('home_page') }}" class="mini-link">My Listings</a>
+                    </div>
+                </article>
+
+                <article class="flow-card">
+                    <span class="flow-tag">Orders</span>
+                    <h3>Track Purchases</h3>
+                    <p>Review your order history and open listing pages from your order queue.</p>
+                    <div class="card-actions">
+                        <a href="{{ url_for('view_orders') }}" class="mini-link">View Orders</a>
+                    </div>
+                </article>
+
+                <article class="flow-card">
+                    <span class="flow-tag">Connections</span>
+                    <h3>Favorites and Chats</h3>
+                    <p>Jump back into saved products and continue conversations with users.</p>
+                    <div class="card-actions">
+                        <a href="{{ url_for('view_favorites') }}" class="mini-link">Favorites</a>
+                        <a href="{{ url_for('messages') }}" class="mini-link">Messages</a>
+                    </div>
+                </article>
+
+                {% if role == 'admin' %}
+                <article class="flow-card">
+                    <span class="flow-tag">Administration</span>
+                    <h3>Moderation Tools</h3>
+                    <p>Access user-level controls and oversee platform activity with admin permissions.</p>
+                    <div class="card-actions">
+                        <a href="{{ url_for('manage_user') }}" class="mini-link">Manage Users</a>
+                        <a href="{{ url_for('home_page') }}" class="mini-link">Review Listings</a>
+                    </div>
+                </article>
+                {% endif %}
+            </div>
+
+            <div class="role-note">
+                {% if role == 'admin' %}
+                You are operating with admin privileges. In addition to participant actions, you can access moderation and user management controls.
+                {% else %}
+                You are operating as a participant. You can buy, sell, save favorites, and communicate with other users from this workspace.
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

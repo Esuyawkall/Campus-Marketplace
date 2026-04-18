@@ -70,8 +70,13 @@
         {% if item.user_id != session.get('user')['id'] %}
         <div class="card">
             <div class="product-image">
+<<<<<<< HEAD
                 <img src="{{ url_for('static', filename=item.img_url) }}">
                 <button 
+=======
+                <img src="{{item.img_url}}" alt="product_image">
+            <button 
+>>>>>>> d889270 (apply gitignore properly)
                     onclick="likePost(this)"
                     data-id="{{ item.product_id }}"
                     id="like-btn-{{ item.product_id }}"
@@ -123,7 +128,11 @@
         {% for item in myItems %}
             <div class="card">
             <div class="product-image">
+<<<<<<< HEAD
                 <img src="{{ url_for('static', filename=item.img_url) }}" alt="product_image">
+=======
+                <img src="{{item.img_url}}" alt="product_image">
+>>>>>>> d889270 (apply gitignore properly)
             <button 
                     onclick="likePost(this)"
                     data-id="{{ item.product_id }}"

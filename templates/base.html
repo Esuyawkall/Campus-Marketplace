@@ -3,9 +3,12 @@
       {% if title %}
       <title>{{ title }} - Home</title>
       {% else %}
-      <title>Welcome to my example</title>
+      <title>Campus Marketplace</title>
       {% endif %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">    </head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
     <body>
        
         {% block content %}{% endblock %}

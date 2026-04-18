@@ -13,6 +13,7 @@ from flask import jsonify
 
 import time
 
+<<<<<<< HEAD
 import os
 from werkzeug.utils import secure_filename
 from flask import request
@@ -32,6 +33,10 @@ DEFAULT_IMAGE = 'images/desk+chair.jpg'
 # Ensure upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+=======
+app = Flask(__name__,static_url_path='')
+DEFAULT_IMAGE_URL = '/static/images/desk+chair.jpg'
+>>>>>>> d889270 (apply gitignore properly)
 
 app.config['SECRET_KEY'] = 'sdfvbgfdjeR5y5r'
 app.config['SESSION_PERMANENT'] = True
@@ -93,6 +98,7 @@ def home_page():
     p = product()
     msg = f'Login successful, User: {session.get("user")["first_name"]} ({session.get("user")["role"]})!'
 
+<<<<<<< HEAD
     is_admin = session.get('user')['role'] == 'admin'
     
     # Get search query
@@ -103,12 +109,27 @@ def home_page():
     
     # Get my items with search
     myItems = p.getbySellerId(session.get('user')['id'], search=search)
+=======
+
+    is_admin = session.get('user')['role'] == 'admin'
+    items = p.getAll(session.get('user')['id'], is_admin=is_admin)
+    myItems = p.getbySellerId(session.get('user')['id'])
+>>>>>>> d889270 (apply gitignore properly)
 
     for item in items:
+<<<<<<< HEAD
         item['img_url'] = item.get('image_url') or DEFAULT_IMAGE
     for item in myItems:
         item['img_url'] = item.get('image_url') or DEFAULT_IMAGE
     return render_template('home.html', title='Home', msg=msg, items=items, myItems=myItems, user=session.get('user')['email'], role=session.get('user')['role'], search_query=search)
+=======
+        images = i.get_images_by_product_id(item['product_id'])
+        item['img_url'] = images[0]['url'] if images else DEFAULT_IMAGE_URL
+    for item in myItems:
+        images = i.get_images_by_product_id(item['product_id'])
+        item['img_url'] = images[0]['url'] if images else DEFAULT_IMAGE_URL
+    return render_template('home.html', title='Home', msg=msg, items=items,myItems=myItems, user=session.get('user')['email'], role=session.get('user')['role'])
+>>>>>>> d889270 (apply gitignore properly)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -212,6 +233,11 @@ def view_product(product_id):
     else:
         block_reason = ''
 
+<<<<<<< HEAD
+=======
+    i = image()
+    default_image = DEFAULT_IMAGE_URL
+>>>>>>> d889270 (apply gitignore properly)
     joined_url = product_data.get('image_url')
 
     if joined_url and isinstance(joined_url, str) and joined_url.strip() and (
@@ -219,7 +245,12 @@ def view_product(product_id):
     ):
         product_data['image_url'] = joined_url
     else:
+<<<<<<< HEAD
         product_data['image_url'] = product_data.get('image_url') or DEFAULT_IMAGE
+=======
+        images = i.get_images_by_product_id(product_data['product_id'])
+        product_data['image_url'] = i.get_valid_image(images) if images else default_image
+>>>>>>> d889270 (apply gitignore properly)
 
     return render_template(
         'products/item.html',
@@ -295,6 +326,10 @@ def manage_product(product_id):
             'product_price': request.form.get('product_price'),
             'product_condition': request.form.get('condition'),
             'product_status': request.form.get('product_status') or 'available',
+<<<<<<< HEAD
+=======
+            'image_url': request.form.get('image')
+>>>>>>> d889270 (apply gitignore properly)
         }
 
         file = request.files.get('image')
@@ -332,6 +367,7 @@ def edit_product(product_id):
         return redirect('/home')
 
     if request.method == 'POST':
+<<<<<<< HEAD
         file = request.files.get('image')
 
         if file and allowed_file(file.filename):
@@ -347,15 +383,24 @@ def edit_product(product_id):
         else:
             image_path = product_data['image_url']
 
+=======
+>>>>>>> d889270 (apply gitignore properly)
         data = {
             'product_name': request.form.get('product_name'),
             'description': request.form.get('description'),
             'product_price': request.form.get('product_price'),
             'product_condition': request.form.get('condition'),
+<<<<<<< HEAD
             'product_status': product_data.get('product_status') or 'available',
             'image_url': image_path
         }
 
+=======
+            # Participant edits preserve current moderation status.
+            'product_status': product_data.get('product_status') or 'available',
+            'image_url': request.form.get('image')
+        }
+>>>>>>> d889270 (apply gitignore properly)
         p.updateProduct(product_id, data)
         return redirect('/home')
 
@@ -374,7 +419,12 @@ def view_favorites():
     favorites = f.get_favorites(session.get('user')['id'])
 
     for item in favorites:
+<<<<<<< HEAD
         item['img_url'] = item.get('image_url') or DEFAULT_IMAGE
+=======
+        images = i.get_images_by_product_id(item['product_id'])
+        item['image_url'] = images[0]['url'] if images else DEFAULT_IMAGE_URL
+>>>>>>> d889270 (apply gitignore properly)
 
     return render_template('favorite.html', items=favorites, role=session.get('user')['role'])
 
@@ -395,7 +445,12 @@ def build_orders_page_data(user_id):
     i = image()
 
     for item in orders:
+<<<<<<< HEAD
         item['img_url'] = item.get('image_url') or DEFAULT_IMAGE
+=======
+        images = i.get_images_by_product_id(item['product_id'])
+        item['image_url'] = images[0]['url'] if images else DEFAULT_IMAGE_URL
+>>>>>>> d889270 (apply gitignore properly)
 
     stats = o.get_user_order_stats(user_id) or {}
     order_stats = {
@@ -406,6 +461,11 @@ def build_orders_page_data(user_id):
         'buyer_total_spend': stats.get('buyer_total_spend', 0),
         'buyer_completed_spend': stats.get('buyer_completed_spend', 0),
         'buyer_pending_spend': stats.get('buyer_pending_spend', 0),
+<<<<<<< HEAD
+=======
+        'buyer_avg_order_value': stats.get('buyer_avg_order_value', 0),
+        'buyer_largest_order': stats.get('buyer_largest_order', 0),
+>>>>>>> d889270 (apply gitignore properly)
         'seller_total_sales': stats.get('seller_total_sales', 0),
         'seller_completed_sales': stats.get('seller_completed_sales', 0),
         'seller_pending_sales': stats.get('seller_pending_sales', 0),

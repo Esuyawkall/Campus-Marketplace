@@ -1,56 +1,116 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="home-container">
-
-    <div class="home-header">
-        <h1>Messages</h1>
-    </div>
-{% if role == 'admin' %}
-    <div class="admin-panel">
-        <a href="/users/manage" class="btn">Manage Users</a>
-    </div>
-{% endif %}
-
-<div class="chat-container">
-
-    <div id="chat-box" class="chat-box">
-        {% for msg in messages %}
-            <div class="message 
-                {% if msg.sender_id == current_user %}sent{% else %}received{% endif %}">
-                
-                {{ msg.message_text }}
+<div class="open-chat-page">
+    <div class="open-chat-shell">
+        <header class="open-chat-header">
+            <div>
+                <h1>Conversation</h1>
+                <p>Secure direct messaging between marketplace users.</p>
             </div>
-        {% endfor %}
-    </div>
+            <div class="open-chat-header-actions">
+                <a href="{{ url_for('messages') }}" class="chat-link-btn">Inbox</a>
+                <a href="{{ url_for('home_page') }}" class="chat-link-btn chat-link-muted">Home</a>
+            </div>
+        </header>
 
-    <div class="chat-input">
-        <input type="text" id="messageInput" placeholder="Type a message..." />
-        <button onclick="sendMessage()">Send</button>
-    </div>
+        {% if role == 'admin' %}
+        <div class="open-chat-admin">
+            Admin tools available.
+            <a href="/users/manage">Manage users</a>
+        </div>
+        {% endif %}
 
-</div>
+        <div class="open-chat-frame">
+            <div id="chat-box" class="chat-thread">
+                {% for msg in messages %}
+                <div class="chat-row {% if msg.sender_id == current_user %}chat-row-right{% else %}chat-row-left{% endif %}">
+                    <div class="chat-bubble {% if msg.sender_id == current_user %}chat-bubble-sent{% else %}chat-bubble-received{% endif %}">
+                        <p>{{ msg.message_text }}</p>
+                        <span>{{ msg.date_sent }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="chat-composer">
+                <input type="text" id="messageInput" placeholder="Type your message..." />
+                <button id="sendBtn" class="chat-send-btn">Send</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
+const input = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const chatBox = document.getElementById("chat-box");
+
+function scrollChatToBottom() {
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function appendMessageBubble(text) {
+    const row = document.createElement("div");
+    row.className = "chat-row chat-row-right";
+
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble chat-bubble-sent";
+
+    const p = document.createElement("p");
+    p.textContent = text;
+
+    const stamp = document.createElement("span");
+    stamp.textContent = "Just now";
+
+    bubble.appendChild(p);
+    bubble.appendChild(stamp);
+    row.appendChild(bubble);
+    chatBox.appendChild(row);
+}
+
 async function sendMessage() {
-    const input = document.getElementById("messageInput");
-    const text = input.value;
+    const text = input.value.trim();
+    if (!text) return;
 
-    if (!text.trim()) return;
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Sending...";
 
-   await fetch(`/chat/send/{{ receiver_id }}`, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        message: text
-    })
+    try {
+        const response = await fetch(`/chat/send/{{ receiver_id }}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: text
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error("Message failed");
+        }
+
+        appendMessageBubble(text);
+        input.value = "";
+        input.focus();
+        scrollChatToBottom();
+    } catch (err) {
+        alert("Unable to send message right now. Please try again.");
+    } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Send";
+    }
+}
+
+sendBtn.addEventListener("click", sendMessage);
+input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
 });
 
-    input.value = "";
-    location.reload();
-}
+scrollChatToBottom();
 </script>
 
 
