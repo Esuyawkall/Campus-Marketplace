@@ -5,14 +5,10 @@ class product(baseObject):
     def __init__(self):
         self.setup()
 
-<<<<<<< HEAD
     # -----------------------------
     # GET ALL PRODUCTS
     # -----------------------------
     def getAll(self, user_id, is_admin=False, search=None):
-=======
-    def getAll(self, user_id, is_admin=False):
->>>>>>> d889270 (apply gitignore properly)
         sql = """
         SELECT 
             p.product_id,
@@ -21,10 +17,7 @@ class product(baseObject):
             p.product_price,
             p.product_condition,
             p.product_status,
-<<<<<<< HEAD
             p.seller_id,
-=======
->>>>>>> d889270 (apply gitignore properly)
             u.first_name,
             u.user_id,
             i.image_url,
@@ -39,7 +32,6 @@ class product(baseObject):
         LEFT JOIN images i ON p.product_id = i.product_id
         WHERE (%s = 1 OR p.product_status <> 'unavailable' OR p.seller_id = %s)
         """
-<<<<<<< HEAD
         params = [user_id, int(is_admin), user_id]
 
         if search:
@@ -61,10 +53,6 @@ class product(baseObject):
     # -----------------------------
     # GET BY PRODUCT ID
     # -----------------------------
-=======
-        self.cur.execute(sql, (user_id, int(is_admin), user_id))
-        return self.cur.fetchall()
->>>>>>> d889270 (apply gitignore properly)
     def getbyProductId(self, product_id):
         sql = """
         SELECT 
@@ -74,10 +62,7 @@ class product(baseObject):
             p.product_price,
             p.product_condition,
             p.product_status,
-<<<<<<< HEAD
             p.seller_id,
-=======
->>>>>>> d889270 (apply gitignore properly)
             u.first_name,
             u.user_id AS seller_id,
             i.image_url
@@ -191,10 +176,7 @@ class product(baseObject):
             p.product_price,
             p.product_condition,
             p.product_status,
-<<<<<<< HEAD
             p.seller_id,
-=======
->>>>>>> d889270 (apply gitignore properly)
             u.first_name,
             i.image_url,
             CASE 
@@ -208,7 +190,6 @@ class product(baseObject):
         LEFT JOIN images i ON p.product_id = i.product_id
         WHERE p.seller_id = %s
         """
-<<<<<<< HEAD
         params = [seller_id, seller_id]
 
         if search:
@@ -248,7 +229,3 @@ class product(baseObject):
                 row["image_url"] = "images/desk+chair.jpg"
 
         return rows
-=======
-        self.cur.execute(sql, (seller_id, seller_id))
-        return self.cur.fetchall()
->>>>>>> d889270 (apply gitignore properly)
