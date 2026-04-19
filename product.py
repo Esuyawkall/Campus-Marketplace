@@ -1,16 +1,23 @@
 from baseObject import baseObject
 
+
 class product(baseObject):
     def __init__(self):
         self.setup()
 
-    def getAll(self, user_id):
+    # -----------------------------
+    # GET ALL PRODUCTS
+    # -----------------------------
+    def getAll(self, user_id, is_admin=False, search=None):
         sql = """
         SELECT 
             p.product_id,
             p.product_name,
             p.description,
             p.product_price,
+            p.product_condition,
+            p.product_status,
+            p.seller_id,
             u.first_name,
             u.user_id,
             i.image_url,
@@ -23,9 +30,29 @@ class product(baseObject):
         LEFT JOIN favorites f 
             ON p.product_id = f.product_id AND f.user_id = %s
         LEFT JOIN images i ON p.product_id = i.product_id
+        WHERE (%s = 1 OR p.product_status <> 'unavailable' OR p.seller_id = %s)
         """
-        self.cur.execute(sql, (user_id,))
-        return self.cur.fetchall()
+        params = [user_id, int(is_admin), user_id]
+
+        if search:
+            sql += """
+            AND (
+                p.product_name LIKE %s
+                OR p.description LIKE %s
+                OR p.product_condition LIKE %s
+            )
+            """
+            like = f"%{search}%"
+            params.extend([like, like, like])
+
+        self.cur.execute(sql, tuple(params))
+        rows = self.cur.fetchall()
+
+        return self._attach_image_url(rows)
+
+    # -----------------------------
+    # GET BY PRODUCT ID
+    # -----------------------------
     def getbyProductId(self, product_id):
         sql = """
         SELECT 
@@ -34,6 +61,8 @@ class product(baseObject):
             p.description,
             p.product_price,
             p.product_condition,
+            p.product_status,
+            p.seller_id,
             u.first_name,
             u.user_id AS seller_id,
             i.image_url
@@ -41,18 +70,26 @@ class product(baseObject):
         JOIN users u ON p.seller_id = u.user_id
         LEFT JOIN images i ON p.product_id = i.product_id
         WHERE p.product_id = %s
-        """ 
+        """
+
         self.cur.execute(sql, (product_id,))
-        return self.cur.fetchone()
+        row = self.cur.fetchone()
+
+        if row:
+            return self._attach_image_url([row])[0]
+        return None
+
+    # -----------------------------
+    # CREATE PRODUCT
+    # -----------------------------
     def CreateListing(self, data):
         try:
-            # 1. Insert product first
             sql = """
             INSERT INTO products 
             (product_name, description, product_price, seller_id, product_condition, product_status)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
-            
+
             self.cur.execute(sql, (
                 data['product_name'],
                 data['description'],
@@ -64,6 +101,7 @@ class product(baseObject):
 
             product_id = self.cur.lastrowid
 
+            # store ONLY filename (NOT full path)
             image_sql = """
             INSERT INTO images (product_id, image_url)
             VALUES (%s, %s)
@@ -71,24 +109,28 @@ class product(baseObject):
 
             self.cur.execute(image_sql, (
                 product_id,
-                data['image_url']
+                data['image_url']  # should be filename only
             ))
 
             self.conn.commit()
-
             return product_id
 
         except Exception as e:
             self.conn.rollback()
-            print("Error:", e)
+            print("CreateListing Error:", e)
             return None
+
+    # -----------------------------
+    # DELETE PRODUCT
+    # -----------------------------
     def deleteById(self, id):
-        sql = """
-        DELETE FROM products
-        WHERE product_id = %s
-        """ 
+        sql = "DELETE FROM products WHERE product_id = %s"
         self.cur.execute(sql, (id,))
         self.conn.commit()
+
+    # -----------------------------
+    # UPDATE PRODUCT
+    # -----------------------------
     def updateProduct(self, id, data):
         sql1 = """
         UPDATE products
@@ -116,19 +158,27 @@ class product(baseObject):
         """
 
         self.cur.execute(sql2, (
-            data['image_url'],
+            data['image_url'],  # filename only
             id
         ))
 
         self.conn.commit()
-    def getbySellerId(self, seller_id):
+
+    # -----------------------------
+    # GET BY SELLER ID
+    # -----------------------------
+    def getbySellerId(self, seller_id, search=None):
         sql = """
         SELECT 
             p.product_id,
             p.product_name,
             p.description,
             p.product_price,
+            p.product_condition,
+            p.product_status,
+            p.seller_id,
             u.first_name,
+            i.image_url,
             CASE 
                 WHEN f.user_id IS NOT NULL THEN 1
                 ELSE 0
@@ -137,7 +187,45 @@ class product(baseObject):
         JOIN users u ON p.seller_id = u.user_id
         LEFT JOIN favorites f 
             ON p.product_id = f.product_id AND f.user_id = %s
+        LEFT JOIN images i ON p.product_id = i.product_id
         WHERE p.seller_id = %s
         """
-        self.cur.execute(sql, (seller_id, seller_id))
-        return self.cur.fetchall()
+        params = [seller_id, seller_id]
+
+        if search:
+            sql += """
+            AND (
+                p.product_name LIKE %s
+                OR p.description LIKE %s
+                OR p.product_condition LIKE %s
+            )
+            """
+            like = f"%{search}%"
+            params.extend([like, like, like])
+
+        self.cur.execute(sql, tuple(params))
+        rows = self.cur.fetchall()
+
+        return self._attach_image_url(rows)
+
+    # -----------------------------
+    # INTERNAL HELPER
+    # -----------------------------
+    def _attach_image_url(self, rows):
+        """
+        Converts DB image filename → usable Flask static URL
+        """
+        for row in rows:
+            img = row.get("image_url")
+
+            if img:
+                # If it already has 'images/' prefix, use as-is
+                # Otherwise prepend it
+                if img.startswith('images/'):
+                    row["image_url"] = img
+                else:
+                    row["image_url"] = f"images/{img}"
+            else:
+                row["image_url"] = "images/desk+chair.jpg"
+
+        return rows

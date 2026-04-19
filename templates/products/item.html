@@ -4,7 +4,7 @@
 <div class="product-detail">
     
     <div class="product-image-large">
-        <img src="{{ product.image_url }}" alt="product_image">
+        <img src="{{ url_for('static', filename=product.image_url) }}" alt="Product Image">
     </div>
 
     <div class="product-info">
@@ -12,11 +12,16 @@
         <p class="price">${{ product.product_price }}</p>
         <p class="desc-long">{{ product.description }}</p>
         <p class="desc"><strong>Condition:</strong> {{ product.product_condition }}</p>
+        <p class="desc"><strong>Status:</strong> {{ product.product_status|default('available')|capitalize }}</p>
 
         <div class="card-footer">
             <span>Seller: {{ product.first_name }}</span>
 
+            {% if can_order %}
             <a href="{{ url_for('place_order', product_id=product.product_id) }}" class="view-btn">Order</a>
+            {% else %}
+            <span class="desc">{{ block_reason }}</span>
+            {% endif %}
 
             {% if role == 'admin' %}
             <a href="{{ url_for('manage_product', product_id=product.product_id) }}" class="view-btn">Manage</a>

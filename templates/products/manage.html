@@ -1,37 +1,110 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-    <h1 class="title">Manage Product</h1>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}">
+
+<div class="page-container admin-manage-page">
+    <header class="page-header admin-manage-header">
+        <h1>Admin Listing Control</h1>
+        <p>Review, moderate, and update listing quality signals for marketplace trust.</p>
+    </header>
+
+    <div class="admin-manage-toolbar">
+        <a class="admin-manage-link" href="{{ url_for('home_page') }}">Back to Marketplace</a>
+        <a class="admin-manage-link" href="{{ url_for('view_product', product_id=product.product_id) }}">View Public Listing</a>
+        {% if role == 'admin' %}
+        <a class="admin-manage-link" href="{{ url_for('manage_user') }}">User Management</a>
+        {% endif %}
+    </div>
 
     {% if msg %}
-    <div class="message">
+    <div class="card" style="margin-bottom: 12px;">
         {{ msg }}
     </div>
     {% endif %}
 
-    <form action="{{ url_for('manage_product', product_id=product.product_id) }}" method="POST" class="account_form">
+    <div class="admin-layout">
+        <section class="card">
+            <h3>Listing Details</h3>
 
-        <label for="product_name">Product Name</label>
-        <input type="text" id="product_name" name="product_name" value="{{ product.product_name }}" placeholder="Enter the product name" required>
+            <form action="{{ url_for('manage_product', product_id=product.product_id) }}" method="POST" enctype="multipart/form-data">
+                <div class="grid-2">
 
-        <label for="product_price">Product Price</label>
-        <input type="number" id="product_price" name="product_price" value="{{ product.product_price }}" placeholder="Enter the product price" required>
+                    <div class="field">
+                        <label for="product_name">Product Name</label>
+                        <input type="text" id="product_name" name="product_name" value="{{ product.product_name }}" required>
+                    </div>
 
-        <label for="description">Description</label>
-        <textarea id="description" name="description" placeholder="Enter the product description">{{ product.description }}</textarea>
+                    <div class="field">
+                        <label for="product_price">Product Price ($)</label>
+                        <input type="number" id="product_price" name="product_price" value="{{ product.product_price }}" step="0.01" min="0" required>
+                    </div>
 
-        <label for="condition">Condition</label>
-        <select id="condition" name="condition">
-            <option value="">Select condition</option>
-            <option value="New" {% if product.product_condition == 'New' %}selected{% endif %}>New</option>
-            <option value="Like New" {% if product.product_condition == 'Like New' %}selected{% endif %}>Like New</option>
-            <option value="Used" {% if product.product_condition == 'Used' %}selected{% endif %}>Used</option>
-            <option value="For Parts" {% if product.product_condition == 'For Parts' %}selected{% endif %}>For Parts</option>
-        </select>
-        <label for="image">Image URL</label>
-        <input type="text" id="image" name="image" value="{{ product.image_url }}" placeholder="Enter image URL">
-        <br>
+                    <div class="field">
+                        <label for="condition">Condition</label>
+                        <select id="condition" name="condition" required>
+                            <option value="New" {% if product.product_condition == 'New' %}selected{% endif %}>New</option>
+                            <option value="Like New" {% if product.product_condition == 'Like New' %}selected{% endif %}>Like New</option>
+                            <option value="Used" {% if product.product_condition == 'Used' %}selected{% endif %}>Used</option>
+                            <option value="For Parts" {% if product.product_condition == 'For Parts' %}selected{% endif %}>For Parts</option>
+                        </select>
+                    </div>
 
-        <button type="submit">Update Product</button>
-    </form>
+                    <div class="field">
+                        <label for="product_status">Listing Status</label>
+                        <select id="product_status" name="product_status" required>
+                            <option value="available" {% if product.product_status == 'available' %}selected{% endif %}>Available</option>
+                            <option value="pending" {% if product.product_status == 'pending' %}selected{% endif %}>Pending Review</option>
+                            <option value="unavailable" {% if product.product_status == 'unavailable' %}selected{% endif %}>Unavailable</option>
+                        </select>
+                    </div>
+
+                    <div class="field full">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" required>{{ product.description }}</textarea>
+                    </div>
+
+                    <div class="field full">
+                        <label for="image">Image</label>
+                         <input type="file" name="image" accept="image/*" value="{{ product.image_url or '' }}">
+
+
+                </div>
+
+                <button type="submit" class="btn-edit btn-primary" style="margin-top:14px;">
+                    Save Admin Changes
+                </button>
+            </form>
+        </section>
+
+        <aside class="card">
+            <h3>Governance Snapshot</h3>
+
+            <div class="governance-list">
+                <div class="governance-item">
+                    <strong>Product ID</strong>
+                    #{{ product.product_id }}
+                </div>
+
+                <div class="governance-item">
+                    <strong>Seller</strong>
+                    {{ product.first_name }} (User #{{ product.seller_id }})
+                </div>
+
+                <div class="governance-item">
+                    <strong>Current Status</strong>
+                    {{ product.product_status|default('available')|capitalize }}
+                </div>
+
+                <div class="governance-item">
+                    <strong>Admin Intent</strong>
+                    Use Pending Review when quality checks are in progress, and Unavailable for moderated listings.
+                </div>
+            </div>
+
+            {% if product.image_url %}
+            <img src="{{ url_for('static', filename=product.image_url) }}" class="admin-preview-image">
+            {% endif %}
+        </aside>
+    </div>
+</div>
 {% endblock %}

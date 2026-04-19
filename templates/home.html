@@ -25,9 +25,43 @@
             <a href="/messages" class="btn">Messages</a>
         </div>
     </div>
+    </div>
+    <div class="menu-bar">
+
+  <div class="profile-wrapper">
+    <button id="btn-profile">
+      <i class="fa-solid fa-circle-user"></i>
+    </button>
+
+    <div id="profile-x" class="profile-dropdown">
+      <div class="profile-info">
+        {{ session.get('user')['first_name'] }}
+        {{ session.get('user')['last_name'] }}
+        ({{ session.get('user')['role'] }})
+      </div>
+
+      <a href="{{ url_for('profile_page') }}" id="btn-home">Profile</a>
+      <a href="{{ url_for('logout') }}" id="btn-logout">Logout</a>
+    </div>
+  </div>
+
+</div>
+    <div class="menu-bar">
+        <i class="fa-solid fa-toggle-on" id="theme-toggle"></i>
+    </div>
+    <div class="login-msg">
+        <p>{{ msg }}</p>
+    </div>
     <div class="home-actions">
         <a href="{{ url_for('add_product') }}" class="btn">+ Add Listing</a>
-        <input type="text" placeholder="Search items..." class="search-bar">
+        <form method="GET" action="{{ url_for('home_page') }}" class="search-bar">
+    <input 
+        type="text"
+        name="q"
+        placeholder="Search items..."
+        value="{{ request.args.get('q', '') }}"
+    >
+</form>
     </div>
 
     <div class="listings">
@@ -35,25 +69,33 @@
         {% for item in items %}
         {% if item.user_id != session.get('user')['id'] %}
         <div class="card">
-            <div class="product-image"><img src="{{item.img_url}}" alt="product_image"></div>
-            <h3>{{ item.product_name }}</h3>
-            <p class="price">${{ item.product_price }}</p>
-            <p class="desc">{{ item.description }}</p>
-            <p class="desc">{{ item.product_condition }}</p>
-
-            <div class="favorite-container">
+            <div class="product-image">
+                <img src="{{ url_for('static', filename=item.img_url) }}">
                 <button 
                     onclick="likePost(this)"
                     data-id="{{ item.product_id }}"
                     id="like-btn-{{ item.product_id }}"
                     class="favorite-btn">
 
-                    {{ "❤️" if item.is_favorite else "🤍" }}
+                    {% if item.is_favorite %}
+                        <i class="fa-solid fa-heart" ></i>
+                    {% else %}
+                        <i class="fa-regular fa-heart"></i>
+                    {% endif %}
                 </button>
             </div>
+            <h3>{{ item.product_name }}</h3>
+            <p class="price">${{ item.product_price }}</p>
+            <p class="desc">{{ item.description }}</p>
+            <p class="desc">{{ item.product_condition }}</p>
+            <p class="desc"><strong>Status:</strong> {{ item.product_status|default('available')|capitalize }}</p>
             <div class="card-footer">
                 <span>Seller: {{ item.first_name }}</span>
+                {% if item.product_status == 'available' %}
                 <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="view-btn">Buy</a>
+                {% else %}
+                <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="view-btn">{% if item.product_status == 'pending' %}Pending{% else %}Unavailable{% endif %}</a>
+                {% endif %}
                 {% if role == 'admin' %}
                 <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Manage</a>
                 {% endif %}
@@ -63,6 +105,15 @@
         {% endif %}
         {% endfor %}
         </div>
+
+        {% if items|length == 0 %}
+            {% if search_query %}
+                <p class="no-items">No listings found for "{{ search_query }}". Try a different search term.</p>
+            {% else %}
+                <p class="no-items">No listings yet. Be the first to add one!</p>
+            {% endif %}
+        {% endif %}
+
         <div class="home-container">
     <div class="home-header">
         <h3>My Listings</h3>
@@ -71,35 +122,45 @@
 
         {% for item in myItems %}
             <div class="card">
-            <div class="product-image"><img src="{{item.img_url}}" alt="product_image"></div>
-            <h3>{{ item.product_name }}</h3>
-            <p class="price">${{ item.product_price }}</p>
-            <p class="desc">{{ item.description }}</p>
-            <p class="desc">{{ item.product_condition }}</p>
-
-            <div class="favorite-container">
-                <button 
+            <div class="product-image">
+                <img src="{{ url_for('static', filename=item.img_url) }}" alt="product_image">
+            <button 
                     onclick="likePost(this)"
                     data-id="{{ item.product_id }}"
                     id="like-btn-{{ item.product_id }}"
                     class="favorite-btn">
 
-                    {{ "❤️" if item.is_favorite else "🤍" }}
+                    {% if item.is_favorite %}
+                        <i class="fa-solid fa-heart"></i>
+                    {% else %}
+                        <i class="fa-regular fa-heart"></i>
+                    {% endif %}
                 </button>
             </div>
+            <h3>{{ item.product_name }}</h3>
+            <p class="price">${{ item.product_price }}</p>
+            <p class="desc">{{ item.description }}</p>
+            <p class="desc">{{ item.product_condition }}</p>
+            <p class="desc"><strong>Status:</strong> {{ item.product_status|default('available')|capitalize }}</p>
+
 
             <div class="card-footer">
                 <span>Seller: {{ item.first_name }}</span>
-                <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Edit</a>
+                <a href="{{ url_for('edit_product', product_id=item.product_id) }}" class="view-btn">Edit</a>
                 {% if role == 'admin' %}
                 <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Manage</a>
                 {% endif %}
             </div>
         </div>
         {% endfor %}
+        </div>
 
-        {% if items|length == 0 %}
-        <p class="no-items">No listings yet. Be the first to add one!</p>
+        {% if myItems|length == 0 %}
+            {% if search_query %}
+                <p class="no-items">No listings found for "{{ search_query }}" in your items.</p>
+            {% else %}
+                <p class="no-items">You haven't added any listings yet. <a href="{{ url_for('add_product') }}">Add your first listing!</a></p>
+            {% endif %}
         {% endif %}
 
     </div>
@@ -118,8 +179,48 @@ async function likePost(btn) {
     });
 
     const data = await res.json();
+    const icon = btn.querySelector("i");
 
-    btn.textContent = data.liked ? "❤️" : "🤍";
+    if (data.liked) {
+        icon.classList.remove("fa-regular");
+        icon.classList.add("fa-solid");
+    } else {
+        icon.classList.remove("fa-solid");
+        icon.classList.add("fa-regular");
+    }
 }
+const btn = document.getElementById("theme-toggle");
+const btn2 = document.getElementById("profile-x");
+
+
+btn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+
+  // save preference
+  if (document.body.classList.contains("dark")) {
+    localStorage.setItem("theme", "dark");
+  } else {
+    localStorage.setItem("theme", "light");
+  }
+});
+
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+  document.body.classList.add("dark");
+}
+const profileBtn = document.getElementById("btn-profile");
+const dropdown = document.getElementById("profile-x");
+
+profileBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  dropdown.classList.toggle("show");
+});
+
+document.addEventListener("click", (e) => {
+  if (!dropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+    dropdown.classList.remove("show");
+  }
+});
 </script>
 {% endblock %}

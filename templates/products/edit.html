@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}">
+
+<div class="page-container seller-edit-page">
+    <header class="page-header seller-edit-header">
+        <h1>Edit My Listing</h1>
+        <p>Update your listing details and keep your post clear for buyers.</p>
+    </header>
+
+    <section class="card">
+        <form action="{{ url_for('edit_product', product_id=product.product_id) }}" method="POST" enctype="multipart/form-data">
+            <div class="grid-2">
+
+                <div class="field">
+                    <label for="product_name">Product Name</label>
+                    <input type="text" id="product_name" name="product_name" value="{{ product.product_name }}" required>
+                </div>
+
+                <div class="field">
+                    <label for="product_price">Product Price ($)</label>
+                    <input type="number" id="product_price" name="product_price" value="{{ product.product_price }}" step="0.01" min="0" required>
+                </div>
+
+                <div class="field">
+                    <label for="condition">Condition</label>
+                    <select id="condition" name="condition" required>
+                        <option value="New" {% if product.product_condition == 'New' %}selected{% endif %}>New</option>
+                        <option value="Like New" {% if product.product_condition == 'Like New' %}selected{% endif %}>Like New</option>
+                        <option value="Used" {% if product.product_condition == 'Used' %}selected{% endif %}>Used</option>
+                        <option value="For Parts" {% if product.product_condition == 'For Parts' %}selected{% endif %}>For Parts</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="image">Image</label>
+                            <input type="file" name="image" accept="image/*" value="{{ product.image_url or '' }}">
+
+                </div>
+
+                <div class="field full">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" required>{{ product.description }}</textarea>
+                </div>
+
+            </div>
+
+            <div class="seller-edit-actions">
+                <button type="submit" class="btn-edit btn-primary">Save Changes</button>
+                <a href="{{ url_for('home_page') }}" class="btn-edit btn-secondary">Cancel</a>
+            </div>
+        </form>
+
+        <div class="seller-status-note">
+            Listing status is managed by marketplace moderation. Current status:
+            <strong>{{ product.product_status|default('available')|capitalize }}</strong>.
+        </div>
+    </section>
+</div>
+{% endblock %}

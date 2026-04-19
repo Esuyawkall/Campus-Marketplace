@@ -13,36 +13,73 @@
         <a href="/users/manage" class="btn">Manage Users</a>
     </div>
 {% endif %}
-    <div class="orders-list">
-        {% for order in orders %}
-        <div class="card">
-        <div class="product-image"><img src="{{order.image_url}}" alt="product_image"></div>
-            <h3>{{ order.product_name }}</h3>
-            <p class="price">${{ order.product_price }}</p>
-            <p class="desc">{{ order.description}}</p>
-            <p class="desc">{{ order.product_condition }}</p>
-            <div class="order-status">
-                <span>Status: {{ order.order_status }}</span>
-                {% if order.order_status == 'completed' %}
-                <br>
-                <span>Ordered on: {{ order.date_completed }}</span>
-                {% endif %}
-            </div>
+{% if msg %}
+    <div class="login-msg">
+        <p>{{ msg }}</p>
+    </div>
+{% endif %}
+    <div class="orders-layout">
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="card">
+            <div class="product-image"><img src="{{ url_for('static', filename=order.img_url) }}" alt="Product Image"></div>
+                <h3>{{ order.product_name }}</h3>
+                <p class="price">${{ order.product_price }}</p>
+                <p class="desc">{{ order.description}}</p>
+                <p class="desc">{{ order.product_condition }}</p>
+                <div class="order-status">
+                    <span>Status: {{ order.order_status }}</span>
+                    {% if order.order_status|lower == 'completed' %}
+                    <br>
+                    <span>Ordered on: {{ order.date_completed }}</span>
+                    {% endif %}
+                </div>
 
-            <div class="card-footer">
-                <span>Seller: {{ order.first_name }}</span>
-                <a href="{{ url_for('view_product', product_id=order.product_id) }}" class="view-btn">View</a>
-                {% if role == 'admin' %}
-                <a href="{{ url_for('manage_product', product_id=order.product_id) }}" class="view-btn">Manage</a>
-                {% endif %}
+                <div class="card-footer">
+                    <span>Seller: {{ order.first_name }}</span>
+                    <a href="{{ url_for('view_product', product_id=order.product_id) }}" class="view-btn">View</a>
+                    {% if role == 'admin' %}
+                    <a href="{{ url_for('manage_product', product_id=order.product_id) }}" class="view-btn">Manage</a>
+                    {% endif %}
+                </div>
             </div>
+        <br>
+
+            {% endfor %}
+            {% if orders|length == 0 %}
+            <p class="no-items">You have no orders yet. Start shopping to place your first order!</p>
+            {% endif %}
         </div>
-    <br>
+    
+        <aside class="order-stats">
+            <h2 class="stat-title">User Statistics</h2>
+            <div class="stat-block">
 
-        {% endfor %}
-        {% if orders|length == 0 %}
-        <p class="no-items">You have no orders yet. Start shopping to place your first order!</p>
-        {% endif %}
+            <div class="stats-card">
+                <h3>Buyer Orders</h3>
+                <p>Total: {{ order_stats.buyer_total_orders }}</p>
+                <p>Completed: {{ order_stats.buyer_completed_orders }}</p>
+                <p>Pending: {{ order_stats.buyer_pending_orders }}</p>
+                <p>Other: {{ order_stats.buyer_other_orders }}</p>
+                <p class="stats-money">Total Spend: ${{ '%.2f'|format(order_stats.buyer_total_spend|float) }}</p>
+                <p>Completed Spend: ${{ '%.2f'|format(order_stats.buyer_completed_spend|float) }}</p>
+                <p>Pending Spend: ${{ '%.2f'|format(order_stats.buyer_pending_spend|float) }}</p>
+            </div>
+
+            <div class="stats-card">
+                <h3>Seller Sales</h3>
+                <p>Total: {{ order_stats.seller_total_sales }}</p>
+                <p>Completed: {{ order_stats.seller_completed_sales }}</p>
+                <p>Pending: {{ order_stats.seller_pending_sales }}</p>
+                <p>Other: {{ order_stats.seller_other_sales }}</p>
+                <p class="stats-money">Total Sales Value: ${{ '%.2f'|format(order_stats.seller_total_sales_value|float) }}</p>
+                <p>Completed Revenue: ${{ '%.2f'|format(order_stats.seller_completed_revenue|float) }}</p>
+                <p>Pending Revenue: ${{ '%.2f'|format(order_stats.seller_pending_revenue|float) }}</p>
+                <p>Avg Sale Value: ${{ '%.2f'|format(order_stats.seller_avg_sale_value|float) }}</p>
+                <p>Largest Sale: ${{ '%.2f'|format(order_stats.seller_largest_sale|float) }}</p>
+            </div>
+            </div>
+        </aside>
     </div>
     <br>
 </div>

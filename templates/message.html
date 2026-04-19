@@ -3,37 +3,90 @@
 {% block content %}
 
 <div class="home-container">
-
     <div class="home-header">
         <h1>Messages</h1>
+        <p>Recent conversations with buyers and sellers.</p>
     </div>
-{% if role == 'admin' %}
-    <div class="admin-panel">
-        <a href="/users/manage" class="btn">Manage Users</a>
-    </div>
-{% endif %}
 
-    <div class="listings">
+    <div class="inbox-page">
+        <div class="inbox-shell">
+            <div class="inbox-header">
+                <div>
+                    <h1>Inbox</h1>
+                    <p>Search and open your latest chats.</p>
+                </div>
+                <a href="{{ url_for('home_page') }}" class="inbox-home-link">Back to Home</a>
+            </div>
 
-        {% for message in messages %}
-        <div class="card">
-            <h3>From: {{ message.sender_name }} {{ message.last_name }}</h3>
-            <p class="price">{{ message.email }}</p>
-            <p class="desc">{{ message.message_text }}</p>
+            <div class="inbox-toolbar">
+                <input id="inboxSearch" type="text" placeholder="Search by name, email, or message preview..." />
+            </div>
 
-            <div class="card-footer">
-                <a href="{{ url_for('chat', user_id=message.user_id) }}" class="view-btn">Open Chat</a>            </div>
+            {% if role == 'admin' %}
+            <div class="inbox-admin-banner">
+                You are in admin mode.
+                <a href="/users/manage">Manage users</a>
+            </div>
+            {% endif %}
+
+            <div class="inbox-list" id="inboxList">
+                {% for message in messages %}
+                <article class="conversation-card" data-search="{{ (message.first_name ~ ' ' ~ message.last_name ~ ' ' ~ message.email ~ ' ' ~ message.message_text)|lower }}">
+                    <div class="conversation-main">
+                        <div class="conversation-avatar">
+                            {{ (message.first_name[0] if message.first_name else 'U')|upper }}
+                        </div>
+                        <div class="conversation-content">
+                            <h3>{{ message.first_name }} {{ message.last_name }}</h3>
+                            <p class="conversation-email">{{ message.email }}</p>
+                            <p class="conversation-preview">{{ message.message_text }}</p>
+                        </div>
+                    </div>
+                    <div class="conversation-meta">
+                        <span class="conversation-time">{{ message.date_sent }}</span>
+                        <a href="{{ url_for('chat', user_id=message.user_id) }}" class="conversation-action">Open Chat</a>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            {% if messages|length == 0 %}
+            <div class="inbox-empty" id="inboxEmpty">
+                <h3>No conversations yet</h3>
+                <p>Once users message you, conversations will appear here.</p>
+            </div>
+            {% else %}
+            <div class="inbox-empty" id="inboxNoMatch" style="display:none;">
+                <h3>No matching conversations</h3>
+                <p>Try a different search term.</p>
+            </div>
+            {% endif %}
         </div>
-        {% endfor %}
-
-        {% if messages|length == 0 %}
-        <p class="no-items">
-            No messages yet. Check back later!
-        </p>
-        {% endif %}
-
     </div>
-
 </div>
+
+<script>
+const searchInput = document.getElementById("inboxSearch");
+const cards = Array.from(document.querySelectorAll(".conversation-card"));
+const noMatch = document.getElementById("inboxNoMatch");
+
+if (searchInput) {
+    searchInput.addEventListener("input", () => {
+        const q = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+            const haystack = card.dataset.search || "";
+            const show = q.length === 0 || haystack.includes(q);
+            card.style.display = show ? "flex" : "none";
+            if (show) visibleCount += 1;
+        });
+
+        if (noMatch) {
+            noMatch.style.display = visibleCount === 0 ? "block" : "none";
+        }
+    });
+}
+</script>
 
 {% endblock %}
