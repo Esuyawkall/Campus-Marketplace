@@ -30,3 +30,10 @@ The app allows users to create accounts, list items (like textbooks, electronics
     - Message buyers
     - Respond to inquiries about their items
     - Report users if needed
+## User Credential
+      ### Admin
+          - Email: esuyawkal@clarkson.edu
+          - password: 123
+      ### Participant
+          - Email: kuda@clarkson.edu
+          - password: 1234
