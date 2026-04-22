@@ -264,6 +264,9 @@ body {
   border-radius: 999px;
   text-decoration: none;
 }
+.btn-add{
+  margin: 0;
+}
 
 .listings {
   display: grid;
