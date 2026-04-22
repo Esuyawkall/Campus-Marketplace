@@ -5,11 +5,22 @@ class order(baseObject):
 
     def place_order(self, user_id, product_id, quantity):
         try:
+            # First, get the seller_id from the product
+            sql_seller = "SELECT seller_id FROM products WHERE product_id = %s"
+            self.cur.execute(sql_seller, (product_id,))
+            result = self.cur.fetchone()
+            
+            if not result:
+                return {"error": "Product not found."}
+            
+            seller_id = result['seller_id']
+            
+            # Now insert the order with seller_id
             sql = """
-            INSERT INTO orders (buyer_id, product_id, quantity, order_status, date_completed)
-            VALUES (%s, %s, %s, %s, NOW())
+            INSERT INTO orders (buyer_id, product_id, quantity, seller_id, order_status, date_completed)
+            VALUES (%s, %s, %s, %s, %s, NOW())
             """ 
-            self.cur.execute(sql, (user_id, product_id, quantity, 'Completed'))
+            self.cur.execute(sql, (user_id, product_id, quantity, seller_id, 'Completed'))
             self.conn.commit()
 
             return {"success": "Order placed successfully."}
@@ -66,6 +77,17 @@ class order(baseObject):
         """
         self.cur.execute(sql, (user_id,))
         return self.cur.fetchall()
+    
+    def has_user_ordered_product(self, user_id, product_id):
+        """Check if a user has already ordered a specific product"""
+        sql = """
+        SELECT COUNT(*) as count
+        FROM orders
+        WHERE buyer_id = %s AND product_id = %s
+        """
+        self.cur.execute(sql, (user_id, product_id))
+        result = self.cur.fetchone()
+        return result['count'] > 0 if result else False
 
     def get_user_order_stats(self, user_id):
         sql = """

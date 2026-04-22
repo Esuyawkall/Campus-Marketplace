@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}">
+
+<div class="home-container">
+<div class="home-header">
+        <h1>All user messages</h1>
+        <p>Review and manage all messages on the Campus Marketplace platform</p>
+    </div>
+
+<div class="page-container">
+
+    <div class="admin-toolbar">
+        <a class="btn-edit btn-secondary" href="{{ url_for('home_page') }}">Back to Home</a>
+        <a class="btn-edit btn-secondary" href="{{ url_for('manage_user') }}">User Management</a>
+    </div>
+
+    <div class="admin-messages-container">
+        {% if messages %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Message ID</th>
+                    <th>From (Sender)</th>
+                    <th>To (Receiver)</th>
+                    <th>Product</th>
+                    <th>Message</th>
+                    <th>Date Sent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg in messages %}
+                <tr class="message-row">
+                    <td>#{{ msg.message_id }}</td>
+                    <td>
+                        <strong>{{ msg.sender_name }}</strong>
+                        <br>
+                        <small>{{ msg.sender_email }}</small>
+                    </td>
+                    <td>
+                        <strong>{{ msg.receiver_name }}</strong>
+                        <br>
+                        <small>{{ msg.receiver_email }}</small>
+                    </td>
+                    <td>
+                        {% if msg.product_id %}
+                            <a href="{{ url_for('view_product', product_id=msg.product_id) }}" class="product-link">
+                                #{{ msg.product_id }}: {{ msg.product_name or 'Unknown' }}
+                            </a>
+                        {% else %}
+                            <span class="text-muted">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td class="message-content">{{ msg.message_text }}</td>
+                    <td>{{ msg.date_sent }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="card" style="text-align: center; padding: 30px;">
+            <p>No messages found on the platform.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+
+<style>
+.admin-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.admin-messages-container {
+    background: #fff;
+    border: 1px solid var(--brd);
+    border-radius: 10px;
+    overflow: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.admin-table thead {
+    background: var(--surf);
+    border-bottom: 2px solid var(--brd);
+}
+
+.admin-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--txt);
+}
+
+.admin-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--brd);
+    vertical-align: middle;
+}
+
+.message-row:hover {
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.message-content {
+    max-width: 400px;
+    white-space: normal;
+    word-break: break-word;
+    color: #555;
+}
+
+.product-link {
+    color: var(--pri);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.product-link:hover {
+    text-decoration: underline;
+}
+
+.text-muted {
+    color: #999;
+    font-style: italic;
+}
+
+@media (max-width: 1200px) {
+    .admin-table {
+        font-size: 0.85rem;
+    }
+    
+    .admin-table td {
+        padding: 8px;
+    }
+    
+    .message-content {
+        max-width: 200px;
+    }
+}
+</style>
+
+{% endblock %}

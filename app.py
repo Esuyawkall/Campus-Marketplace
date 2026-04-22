@@ -103,9 +103,15 @@ def home_page():
     
     # Get my items with search
     myItems = p.getbySellerId(session.get('user')['id'], search=search)
+    
+    # Get user's ordered products
+    o = order()
+    user_orders = o.get_orders(session.get('user')['id'])
+    ordered_product_ids = set(item['product_id'] for item in user_orders)
 
     for item in items:
         item['img_url'] = item.get('image_url') or DEFAULT_IMAGE
+        item['already_ordered'] = item['product_id'] in ordered_product_ids
     for item in myItems:
         item['img_url'] = item.get('image_url') or DEFAULT_IMAGE
     return render_template('home.html', title='Home', msg=msg, items=items, myItems=myItems, user=session.get('user')['email'], role=session.get('user')['role'], search_query=search)
@@ -177,13 +183,72 @@ def manage_user():
     if checksession() == False:
         return redirect('/login')
     
-    # pkval = request.args.get('pkval')
-    # action = request.args.get('action')
+    if session.get('user')['role'] != 'admin':
+        return redirect('/home')
+    
+    # Handle POST request for banning user
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        
+        if user_id:
+            try:
+                # Delete all products by this user
+                p = product()
+                p_sql = f'''DELETE FROM `{p.tn}` WHERE `seller_id` = %s;'''
+                p.cur.execute(p_sql, [user_id])
+                
+                # Delete the user
+                u = user()
+                u.deleteById(user_id)
+                
+                return redirect('/users/manage')
+            except Exception as e:
+                print(f"Error banning user: {e}")
+                return redirect('/users/manage')
+    
+    # GET request - display all users
     u = user()
     u.getAll()
-
-      
+    
     return render_template('users/manage.html', items=u.data, role=session.get('user')['role'])
+
+@app.route('/user/<int:user_id>')
+def view_user_profile(user_id):
+    if checksession() == False:
+        return redirect('/login')
+    
+    # Get user info
+    u = user()
+    u.getById(user_id)
+    
+    if not u.data:
+        return redirect('/home')
+    
+    profile_user = u.data[0]
+    current_user = session.get('user')
+    
+    # Get user's listings
+    p = product()
+    sql = f'''SELECT * FROM `{p.tn}` WHERE `seller_id` = %s AND `product_status` = 'available';'''
+    p.cur.execute(sql, [user_id])
+    user_listings = p.cur.fetchall()
+    
+    # Set image URLs for listings
+    for item in user_listings:
+        item['img_url'] = item.get('image_url') or DEFAULT_IMAGE
+    
+    # Get user's messages
+    m = message()
+    user_messages = m.getMessagesByUserId(user_id)
+    
+    return render_template(
+        'users/user_profile.html',
+        user=profile_user,
+        listings=user_listings,
+        messages=user_messages,
+        current_user_id=current_user['id'],
+        current_role=current_user['role']
+    )
 
 @app.route('/product/<int:product_id>')
 def view_product(product_id):
@@ -202,9 +267,15 @@ def view_product(product_id):
     if status == 'unavailable' and not (is_admin or is_seller):
         return redirect('/home')
 
-    can_order = (status == 'available') and not is_seller
+    # Check if user has already ordered this product
+    o = order()
+    has_ordered = o.has_user_ordered_product(current_user['id'], product_id)
+    
+    can_order = (status == 'available') and not is_seller and not has_ordered
     if is_seller:
         block_reason = 'You cannot order your own listing.'
+    elif has_ordered:
+        block_reason = 'You have already purchased this item.'
     elif status == 'pending':
         block_reason = 'This listing is pending review and cannot be ordered yet.'
     elif status == 'unavailable':
@@ -213,7 +284,6 @@ def view_product(product_id):
         block_reason = ''
 
     i = image()
-    default_image = DEFAULT_IMAGE_URL
     joined_url = product_data.get('image_url')
 
     if joined_url and isinstance(joined_url, str) and joined_url.strip() and (
@@ -291,6 +361,12 @@ def manage_product(product_id):
 
     # 🔵 UPDATE DATA (POST)
     if request.method == 'POST':
+        # Check if delete button was clicked
+        if request.form.get('action') == 'delete':
+            p.deleteProduct(product_id)
+            return redirect('/home')
+        
+        # Otherwise, it's an update
         data = {
             'product_name': request.form.get('product_name'),
             'description': request.form.get('description'),
@@ -334,6 +410,20 @@ def edit_product(product_id):
         return redirect('/home')
 
     if request.method == 'POST':
+        # Check if delete button was clicked
+        if request.form.get('action') == 'delete':
+            p.deleteProduct(product_id)
+            return redirect('/home')
+        
+        # Otherwise, it's an update
+        data = {
+            'product_name': request.form.get('product_name'),
+            'description': request.form.get('description'),
+            'product_price': request.form.get('product_price'),
+            'product_condition': request.form.get('condition'),
+            'product_status': product_data['product_status']  # Keep existing status
+        }
+        
         file = request.files.get('image')
 
         if file and allowed_file(file.filename):
@@ -349,6 +439,7 @@ def edit_product(product_id):
         else:
             image_path = product_data['image_url']
 
+        data['image_url'] = image_path
         p.updateProduct(product_id, data)
         return redirect('/home')
 
@@ -476,9 +567,12 @@ def chat(user_id):
         return redirect('/login')
 
     m = message()
+    product_id = request.args.get('product_id', type=int)
+    
     chat_messages = m.getMessagesBetweenUsers(
         session['user']['id'],
-        user_id
+        user_id,
+        product_id=product_id
     )
 
     return render_template(
@@ -486,7 +580,8 @@ def chat(user_id):
         messages=chat_messages,
         receiver_id=user_id,
         current_user=session['user']['id'],
-        role=session['user']['role']
+        role=session['user']['role'],
+        product_id=product_id
     )
 @app.route('/chat/send/<int:receiver_id>', methods=['POST'])
 def send_message(receiver_id):
@@ -494,15 +589,34 @@ def send_message(receiver_id):
         return {"error": "unauthorized"}, 401
 
     data = request.get_json()
+    product_id = data.get('product_id')
 
     m = message()
     m.sendMessage(
         session['user']['id'],
         receiver_id,
         data['message'],
-        product_id=data.get('product_id')
+        product_id=product_id
     )
 
     return {"status": "ok"}
+
+@app.route('/admin/messages')
+def admin_messages():
+    if not checksession():
+        return redirect('/login')
+    
+    if session['user']['role'] != 'admin':
+        return redirect('/home')
+    
+    m = message()
+    all_messages = m.getAllMessages()
+
+    return render_template(
+        'messages/admin_messages.html',
+        messages=all_messages,
+        role=session['user']['role']
+    )
+
 if __name__ == '__main__':
    app.run(host='0.0.0.0',debug=True)

@@ -993,6 +993,42 @@ body.dark .orders .btn {
   border-bottom-left-radius: 6px;
 }
 
+.chat-timestamp {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.74rem;
+  opacity: 0.82;
+}
+
+.chat-product-reference {
+  display: block;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid currentColor;
+  font-size: 0.75rem;
+}
+
+.product-ref-link {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.product-ref-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.chat-bubble-sent .product-ref-link {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.chat-bubble-received .product-ref-link {
+  color: var(--pri);
+}
+
 .chat-composer {
   margin-top: 12px;
   display: flex;
@@ -1320,6 +1356,11 @@ body.dark .orders .btn {
     background: transparent;
     border: 1px solid var(--brd);
     color: var(--txt);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
 }
 
 /* ===== Seller ===== */

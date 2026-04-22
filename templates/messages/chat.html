@@ -26,7 +26,14 @@
                 <div class="chat-row {% if msg.sender_id == current_user %}chat-row-right{% else %}chat-row-left{% endif %}">
                     <div class="chat-bubble {% if msg.sender_id == current_user %}chat-bubble-sent{% else %}chat-bubble-received{% endif %}">
                         <p>{{ msg.message_text }}</p>
-                        <span>{{ msg.date_sent }}</span>
+                        <span class="chat-timestamp">{{ msg.date_sent }}</span>
+                        {% if msg.product_id %}
+                        <div class="chat-product-reference">
+                            <a href="{{ url_for('view_product', product_id=msg.product_id) }}" class="product-ref-link">
+                                View Product #{{ msg.product_id }}
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -49,7 +56,7 @@ function scrollChatToBottom() {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function appendMessageBubble(text) {
+function appendMessageBubble(text, productId) {
     const row = document.createElement("div");
     row.className = "chat-row chat-row-right";
 
@@ -60,10 +67,25 @@ function appendMessageBubble(text) {
     p.textContent = text;
 
     const stamp = document.createElement("span");
+    stamp.className = "chat-timestamp";
     stamp.textContent = "Just now";
 
     bubble.appendChild(p);
     bubble.appendChild(stamp);
+    
+    if (productId) {
+        const productDiv = document.createElement("div");
+        productDiv.className = "chat-product-reference";
+        
+        const productLink = document.createElement("a");
+        productLink.className = "product-ref-link";
+        productLink.href = `/product/${productId}`;
+        productLink.textContent = `View Product #${productId}`;
+        
+        productDiv.appendChild(productLink);
+        bubble.appendChild(productDiv);
+    }
+    
     row.appendChild(bubble);
     chatBox.appendChild(row);
 }
@@ -76,21 +98,28 @@ async function sendMessage() {
     sendBtn.textContent = "Sending...";
 
     try {
+        const payload = {
+            message: text
+        };
+        
+        {% if product_id %}
+        payload.product_id = {{ product_id }};
+        {% endif %}
+        
         const response = await fetch(`/chat/send/{{ receiver_id }}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                message: text
-            })
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
             throw new Error("Message failed");
         }
 
-        appendMessageBubble(text);
+        const productId = payload.product_id || null;
+        appendMessageBubble(text, productId);
         input.value = "";
         input.focus();
         scrollChatToBottom();

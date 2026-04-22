@@ -26,6 +26,8 @@
             {% if role == 'admin' %}
             <a href="{{ url_for('manage_product', product_id=product.product_id) }}" class="view-btn">Manage</a>
             {% endif %}
+            
+            <a href="{{ url_for('chat', user_id=product.seller_id, product_id=product.product_id) }}" class="view-btn">Chat</a>
         </div>
     </div>
 

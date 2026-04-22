@@ -91,7 +91,9 @@
             <p class="desc"><strong>Status:</strong> {{ item.product_status|default('available')|capitalize }}</p>
             <div class="card-footer">
                 <span>Seller: {{ item.first_name }}</span>
-                {% if item.product_status == 'available' %}
+                {% if item.already_ordered %}
+                <span class="view-btn" style="background: #ccc; cursor: not-allowed;">Sold</span>
+                {% elif item.product_status == 'available' %}
                 <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="view-btn">Buy</a>
                 {% else %}
                 <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="view-btn">{% if item.product_status == 'pending' %}Pending{% else %}Unavailable{% endif %}</a>
@@ -99,7 +101,7 @@
                 {% if role == 'admin' %}
                 <a href="{{ url_for('manage_product', product_id=item.product_id) }}" class="view-btn">Manage</a>
                 {% endif %}
-                <a href="{{ url_for('chat', user_id=item.user_id) }}" class="view-btn">Chat</a>
+                <a href="{{ url_for('chat', user_id=item.user_id, product_id=item.product_id) }}" class="view-btn">Chat</a>
             </div>
         </div>
         {% endif %}

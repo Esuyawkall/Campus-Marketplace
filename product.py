@@ -121,12 +121,40 @@ class product(baseObject):
             return None
 
     # -----------------------------
-    # DELETE PRODUCT
+    # DELETE PRODUCT (with all related data)
     # -----------------------------
+    def deleteProduct(self, product_id):
+        try:
+            # Delete favorites related to this product
+            sql1 = "DELETE FROM favorites WHERE product_id = %s"
+            self.cur.execute(sql1, (product_id,))
+            
+            # Delete messages related to this product
+            sql2 = "DELETE FROM messages WHERE product_id = %s"
+            self.cur.execute(sql2, (product_id,))
+            
+            # Delete orders related to this product
+            sql3 = "DELETE FROM orders WHERE product_id = %s"
+            self.cur.execute(sql3, (product_id,))
+            
+            # Delete images related to this product
+            sql4 = "DELETE FROM images WHERE product_id = %s"
+            self.cur.execute(sql4, (product_id,))
+            
+            # Finally, delete the product itself
+            sql5 = "DELETE FROM products WHERE product_id = %s"
+            self.cur.execute(sql5, (product_id,))
+            
+            self.conn.commit()
+            return True
+        except Exception as e:
+            self.conn.rollback()
+            print(f"deleteProduct Error: {e}")
+            return False
+
+    # Deprecated: Use deleteProduct instead
     def deleteById(self, id):
-        sql = "DELETE FROM products WHERE product_id = %s"
-        self.cur.execute(sql, (id,))
-        self.conn.commit()
+        return self.deleteProduct(id)
 
     # -----------------------------
     # UPDATE PRODUCT

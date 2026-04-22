@@ -70,9 +70,14 @@
 
                 </div>
 
-                <button type="submit" class="btn-edit btn-primary" style="margin-top:14px;">
-                    Save Admin Changes
-                </button>
+                <div style="display: flex; gap: 10px; margin-top: 14px;">
+                    <button type="submit" name="action" value="save" class="btn-edit btn-primary">
+                        Save Admin Changes
+                    </button>
+                    <button type="submit" name="action" value="delete" class="btn-edit btn-danger" onclick="return confirm('Are you sure you want to delete this listing? This action cannot be undone.');">
+                        Delete Listing
+                    </button>
+                </div>
             </form>
         </section>
 

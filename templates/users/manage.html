@@ -2,29 +2,325 @@
 {% block content %}
 <div class="home-container">
 
+    <!-- Admin Header -->
     <div class="home-header">
-        <h1>Manage Users</h1>
+        <h1>User Management</h1>
+        <p>Review and manage all users on the Campus Marketplace platform</p>
     </div>
-    <div class="listings">
 
+    <!-- Admin Access Navigation -->
+    <div class="admin-actions-bar">
+        <a href="{{ url_for('home_page') }}" class="btn btn-secondary">Home</a>
+        <a href="{{ url_for('admin_messages') }}" class="btn btn-secondary">View All Messages</a>
+    </div>
+
+    <!-- Users Grid -->
+    {% if items %}
+    <div class="users-grid">
         {% for item in items %}
         {% if item.user_id != session.get('user')['id'] %}
-        <div class="card">
-            <h3>{{ item.first_name }} {{ item.last_name }}</h3>
-            <p class="price">{{ item.email }}</p>
-            <p class="desc">{{ item.role }}</p>
+        <div class="user-card">
+            <!-- User Avatar Section -->
+            <div class="user-card-header">
+                <div class="user-avatar-large">
+                    {{ (item.first_name[0] if item.first_name else 'U')|upper }}
+                </div>
+                <div class="user-info-summary">
+                    <h3 class="user-name">{{ item.first_name }} {{ item.last_name }}</h3>
+                    <p class="user-email">{{ item.email }}</p>
+                </div>
+                <div class="role-badge role-{{ item.role|lower }}">
+                    {{ item.role|capitalize }}
+                </div>
+            </div>
 
-            <div class="card-footer">
+            <!-- User Details Section -->
+            <div class="user-card-details">
+                <div class="detail-item">
+                    <span class="detail-label">User ID</span>
+                    <span class="detail-value">#{{ item.user_id }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Account Type</span>
+                    <span class="detail-value">
+                        {% if item.role == 'admin' %}
+                            <span class="status-admin">Administrator</span>
+                        {% else %}
+                            <span class="status-participant">Marketplace Participant</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="user-card-actions">
                 {% if role == 'admin' %}
-                <a href="{{ url_for('manage_user', user_id=item.user_id) }}" class="view-btn">Manage</a>
-                {% if item.role == 'participant' %}
-                <a href="{{ url_for('manage_user', user_id=item.user_id) }}" class="delete-btn">Ban</a>
-                {%endif %}
+                    <a href="{{ url_for('view_user_profile', user_id=item.user_id) }}" class="action-btn action-view">
+                        View Profile
+                    </a>
+                    {% if item.role == 'participant' %}
+                    <form method="POST" style="flex: 1;" onsubmit="return confirm('Are you sure you want to ban this user? All their listings will be deleted. This action cannot be undone.');">
+                        <input type="hidden" name="user_id" value="{{ item.user_id }}">
+                        <button type="submit" class="action-btn action-ban" style="width: 100%;">
+                            Ban User
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="action-btn action-disabled" disabled title="Cannot ban admin users">
+                        Admin Protected
+                    </button>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
         {% endif %}
         {% endfor %}
-        </div>
+    </div>
+    {% else %}
+    <div class="no-users-message">
+        <p>No users available to manage.</p>
+    </div>
+    {% endif %}
+
 </div>
+
+<style>
+/* User Management Page Styles */
+.admin-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding: 16px 24px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    border: 1px solid var(--brd);
+    backdrop-filter: blur(8px);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--txt2), #475569);
+    color: #fff;
+    padding: 10px 18px;
+    font-size: 0.9rem;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+.admin-badge {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--acc), #d97706);
+    color: white;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.user-card {
+    background: var(--surf);
+    border: 1px solid var(--brd);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    border-color: var(--pri);
+}
+
+/* Card Header Section */
+.user-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid var(--brd);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(16, 185, 129, 0.05));
+}
+
+.user-avatar-large {
+    width: 64px;
+    height: 64px;
+    background: gray;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.user-info-summary {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--txt);
+    margin: 0 0 6px 0;
+    word-break: break-word;
+}
+
+.user-email {
+    font-size: 0.9rem;
+    color: var(--txt2);
+    margin: 0;
+    word-break: break-all;
+}
+
+.role-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.role-badge.role-admin {
+    background: linear-gradient(135deg, var(--acc), #d97706);
+    color: #78350f;
+}
+
+.role-badge.role-participant {
+    background: linear-gradient(135deg, var(--sec), #059669);
+    color: white;
+}
+
+/* Card Details Section */
+.user-card-details {
+    padding: 16px 20px;
+    background: rgba(248, 250, 252, 0.5);
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    color: var(--txt2);
+    font-weight: 600;
+}
+
+.detail-value {
+    font-size: 0.95rem;
+    color: var(--txt);
+    font-weight: 700;
+}
+
+.status-admin {
+    color: #d97706;
+    font-weight: 700;
+}
+
+.status-participant {
+    color: var(--sec);
+    font-weight: 700;
+}
+
+/* Card Actions Section */
+.user-card-actions {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--brd);
+    background: linear-gradient(to bottom, var(--surf), #fafafa);
+}
+
+.action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    font-family: inherit;
+}
+
+.action-view {
+    background: linear-gradient(135deg, var(--sec), #059669);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.action-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.action-ban {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.action-ban:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+.action-disabled {
+    background: linear-gradient(135deg, var(--txt2), #475569);
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.action-disabled:hover {
+    transform: none;
+}
+
+/* No Users Message */
+.no-users-message {
+    text-align: center;
+    padding: 60px 24px;
+    background: var(--surf);
+    border-radius: 16px;
+    border: 2px dashed var(--brd);
+    color: var(--txt2);
+}
+
+.no-users-message p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+</style>
+
 {% endblock %}
