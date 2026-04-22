@@ -40,7 +40,7 @@
 
 ---
 
-## 📦 Products (`product.py`)
+## Products (`product.py`)
 
 ### Participant (Seller)
 - **Create**
@@ -70,8 +70,6 @@
   - Send messages
 - **Read**
   - View conversations
-- **Update**
-  - (Optional) Edit messages
 - **Delete**
   - Delete messages
 
@@ -86,46 +84,57 @@
 ## Images (`image.py`)
 
 ### Participant
-- **Read**
-  - view Images
 - **Create**
-  - upload Images 
+  - Upload images
+- **Read**
+  - View images
+- **Update**
+  - Modify own images
+- **Delete**
+  - Delete own images
 
 ### Admin
+- **Read**
+  - View all images
 - **Update**
-  - Modify Images
+  - Modify any images
 - **Delete**
-  - Remove Images
+  - Remove inappropriate images
 
 ---
 
 ## Orders (`order.py`)
 
 ### Participant
+- **Create**
+  - Place orders
 - **Read**
-  - see current and previous orders
-
+  - View current and previous orders
+- **Update**
+  - Modify order status/details
+- **Delete**
+  - Cancel orders
 
 ### Admin
 - **Read**
-  - see and manage all user orders
+  - View and manage all user orders
 - **Update**
-  - Modify orders
+  - Modify any order
 - **Delete**
   - Remove orders
 
-<!-- ---
+---
 
-## 🚩 Reports / Flags (future moderation system)
+## Favorites (`favorite.py`)
 
 ### Participant
 - **Create**
-  - Report users or listings
+  - Add products to favorites
+- **Read**
+  - View favorite products
+- **Delete**
+  - Remove products from favorites
 
 ### Admin
 - **Read**
-  - View reports
-- **Update**
-  - Mark as resolved
-- **Delete**
-  - Remove reports -->
+  - View all favorites (optional)
