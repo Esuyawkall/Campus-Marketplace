@@ -35,5 +35,5 @@ The app allows users to create accounts, list items (like textbooks, electronics
           - Email: esuyawkal@clarkson.edu
           - password: 123
       ### Participant
-          - Email: esuyawkal07@gmail.com
-          - password: 123
+          - Email: kuda@clarkson.edu
+          - password: 1234
