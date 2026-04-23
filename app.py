@@ -281,7 +281,7 @@ def view_product(product_id):
     elif status == 'unavailable':
         block_reason = 'This listing is unavailable right now.'
     else:
-        block_reason = ''
+        block_reason = 'Item currently not available for order.'
 
     i = image()
     joined_url = product_data.get('image_url')
