@@ -6,11 +6,12 @@ The app allows users to create accounts, list items (like textbooks, electronics
 ## Users
 1. Admin
     - View and manage all users
-    <!-- - Suspend or ban user accounts -->
+    - ban user accounts
     - View, edit, or delete any listing
     - Monitor platform activity
     - Handle user reports and complaints
     - Remove inappropriate or fraudulent content
+    - Mark listings as unavailable and pending review
 2. Participant
     i. Buyer
     - Create and manage their account
@@ -18,7 +19,6 @@ The app allows users to create accounts, list items (like textbooks, electronics
     - View item details (price, description, seller info)
     - Message sellers
     - Save or favorite listings
-    - Report listings or users
     - view past orders
     <!-- - Mark items as purchased (optional, depending on design) -->
     ii. Seller
@@ -29,7 +29,6 @@ The app allows users to create accounts, list items (like textbooks, electronics
     - View their active and past listings(up to a certain period)
     - Message buyers
     - Respond to inquiries about their items
-    - Report users if needed
 ## User Credential
       ### Admin
           - Email: esuyawkal@clarkson.edu
