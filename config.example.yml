@@ -1,0 +1,12 @@
+db:
+  user: ''
+  pw: ''
+  host: ''
+  db: ''
+tables:
+  user: 'users'
+  product: 'products'
+  order: 'orders'
+  image: 'images'
+  message: 'messages'
+  favorite: 'favorites'

@@ -3,140 +3,42 @@ from pathlib import Path
 import pymysql
 import datetime
 from user import user
+from product import product
+from order import order
+from message import message
+from favorite import favorite
+from image import image
 
+# Repo Github link (text url)
+# -Zip file (file upload)
+# -Project repo with
+# - readme.md
+#   - Group member names
+#   - Narrative on app purpose
+#   - User table with roles, purpose and example user credentials
+#   - Relational Schema
+#   - analytical queries
+#   - getting started / setup
+# - .gitignore
+# - config file
+# - csv / data files
+# - sql init
+# - Omit credentials file config.yml
+# - Example credentials file config.example.py
+# Grading:
 
-'''
-TODO:
-x- add verify user role
-x- truncate() for testing
-x- test insert()
-x- test deleteById()
-x- test update()
-- test verify new/update:
-    - email in use
-    - password len
-    - passwords match
-    - user role
-- test tryLogin()
+#  -Application does not have Python errors
 
+#  -Test, Test, Test
 
-Make sure your column names match the field names in your code. 
-If you have a column named "name" in your database, but you are trying to set "Name" in your code, it will not work. 
-You need to either change the column name in the database to match your code or change the field name in your code to match the database.
+#  -Framework usage
 
-'''
+#  -Each class has a table
 
-u = user()
-# u.truncate()
+#  -Endpoints should be grouped / predicable
 
+#  -Readme is complete ^^^
 
-d = {'name':'Tyler','email':'esuyawkal4@clarkson.edu','role':'admin','password':'123','password2':'123'}
-u.set(d)
-if u.verifyNew():
-    u.insert()
-    print(f"ID {u.data[0][u.pk]} inserted")
-else:
-    print(u.errors)
+#  -Complexity
 
-
-u.deleteById(u.data[0][u.pk])
-
-u = user()
-u.getAll()
-print(f"len of u.data is {len(u.data)} after delete.")
-
-
-
-u = user()
-# u.truncate()
-
-
-d = {'name':'Tyler','email':'esuyawkal4@clarkson.edu','role':'admin','password':'123','password2':'123'}
-u.set(d)
-if u.verifyNew():
-    u.insert()
-    print(f"ID {u.data[0][u.pk]} inserted")
-else:
-    print(u.errors)
-
-
-u = user()
-u.getByField('email','esuyawkal4@clarkson.edu')
-u.data[0]['name'] = 'newName'
-if u.verifyUpdate():
-    u.update()
-    print(f"ID {u.data[0][u.pk]} updated")
-    u = user()
-    u.getAll()
-    print(f"new name is {u.data[0]['name']}")
-else:
-    print(u.errors)
-
-
-
-
-
-u = user()
-u.getByField('email','esuyawkal4@clarkson.edu')
-u.data[0]['password'] = '123'
-u.data[0]['password2'] = '1234'
-if u.verifyUpdate():
-    u.update()
-else:
-    print(u.errors)
-
-u = user()
-u.getByField('email','esuyawkal4@clarkson.edu')
-u.data[0]['role'] = '123'
-if u.verifyUpdate():
-    u.update()
-else:
-    print(u.errors)
-
-
-
-d = {'name':'Tyler','email':'esuyawkal4@clarkson.edu','role':'admin','password':'123','password2':'123'}
-u.set(d)
-if u.verify_new():
-    u.insert()
-    print(f"ID {u.data[0][u.pk]} inserted")
-else:
-    print(u.errors)
-
-
-u = user()
-if u.tryLogin('esuyawkal4@clarkson.edu','123'):
-    print(f"user with email {u.data[0]['email']} logged in")
-else:
-    print('login failed')
-
-u = user()
-if u.tryLogin('esuyawkal4@clarkson.edu','123'):
-    print(f"user with email {u.data[0]['email']} logged in")
-else:
-    print('login failed')
-
-
-u = user()
-u.getByField('email','esuyawkal4@clarkson.edu')
-print(u.data[0]['password'])
-u.data[0]['password'] = '1234'
-u.data[0]['password2'] = '1234'
-if u.verifyUpdate():
-    
-    u.update()
-    print(u.data[0]['password'])
-else:
-    print(u.errors)
-
-u = user()
-if u.tryLogin('esuyawkal4@clarkson.edu','1234'):
-    print(f"user with email {u.data[0]['email']} logged in")
-else:
-    print('login failed')
-
-u = user()
-if u.tryLogin('esuyawkal4@clarkson.edu','123456'):
-    print(f"user with email {u.data[0]['email']} logged in")
-else:
-    print('login failed')
+#  -SQL queries

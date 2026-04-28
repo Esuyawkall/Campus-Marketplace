@@ -5,9 +5,6 @@ class product(baseObject):
     def __init__(self):
         self.setup()
 
-    # -----------------------------
-    # GET ALL PRODUCTS
-    # -----------------------------
     def getAll(self, user_id, is_admin=False, search=None):
         sql = """
         SELECT 
@@ -50,9 +47,6 @@ class product(baseObject):
 
         return self._attach_image_url(rows)
 
-    # -----------------------------
-    # GET BY PRODUCT ID
-    # -----------------------------
     def getbyProductId(self, product_id):
         sql = """
         SELECT 
@@ -79,9 +73,6 @@ class product(baseObject):
             return self._attach_image_url([row])[0]
         return None
 
-    # -----------------------------
-    # CREATE PRODUCT
-    # -----------------------------
     def CreateListing(self, data):
         try:
             sql = """
@@ -120,9 +111,6 @@ class product(baseObject):
             print("CreateListing Error:", e)
             return None
 
-    # -----------------------------
-    # DELETE PRODUCT (with all related data)
-    # -----------------------------
     def deleteProduct(self, product_id):
         try:
             # Delete favorites related to this product
@@ -156,9 +144,6 @@ class product(baseObject):
     def deleteById(self, id):
         return self.deleteProduct(id)
 
-    # -----------------------------
-    # UPDATE PRODUCT
-    # -----------------------------
     def updateProduct(self, id, data):
         sql1 = """
         UPDATE products
@@ -192,9 +177,6 @@ class product(baseObject):
 
         self.conn.commit()
 
-    # -----------------------------
-    # GET BY SELLER ID
-    # -----------------------------
     def getbySellerId(self, seller_id, search=None):
         sql = """
         SELECT 
